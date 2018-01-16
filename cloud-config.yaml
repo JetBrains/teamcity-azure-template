@@ -1,0 +1,199 @@
+#cloud-config
+write_files:
+  - path: "/etc/teamcity/update.sh"
+    permissions: 0755
+    content: |
+      #!/bin/bash
+      while true
+      do
+        STATUS=$(curl -s -o /etc/teamcity/tags -w '%{http_code}' -H Metadata:true "http://169.254.169.254/metadata/instance/compute/tags?api-version=2017-08-01&format=text")
+        if [ $STATUS -eq 200 ]; then
+          VERSION=$(cat /etc/teamcity/tags | sed -n 's/.*teamcity-version\:\([^;]\+\).*/\1/p')
+          if [[ ! -z "$VERSION" ]]; then
+            TEAMCITY_VERSION="TEAMCITY_VERSION=$VERSION"
+            CURRENT_VERSION=$(cat /etc/teamcity/version)
+            if [ "$TEAMCITY_VERSION" != "$CURRENT_VERSION" ]; then
+                echo "TeamCity version has changed to $VERSION"
+                echo "$TEAMCITY_VERSION" > /etc/teamcity/version
+                /usr/bin/docker pull jetbrains/teamcity-server:${VERSION}
+                /usr/bin/docker pull jetbrains/teamcity-agent:${VERSION}
+            fi
+          fi
+        fi
+        sleep 60
+      done
+  - path: "/etc/teamcity/format-data-drive.sh"
+    permissions: 0755
+    content: |
+      #!/bin/bash
+      if [ -b /dev/sdc1 ]; then
+        DRIVE="/dev/sdb"
+      else
+        DRIVE="/dev/sdc"
+      fi
+      /usr/sbin/pvcreate ${DRIVE}
+      /usr/sbin/vgcreate app ${DRIVE}
+      /usr/sbin/lvcreate -l 100%FREE -n data app
+      /usr/sbin/mkfs.ext4 /dev/mapper/app-data
+  - path: "/etc/teamcity/disabled-plugins.xml"
+    content: |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <disabled-plugins>
+        <disabled-plugin name="cloud-amazon" />
+        <disabled-plugin name="vsphere" />
+      </disabled-plugins>
+  - path: "/etc/coreos/update.conf"
+    content: |
+      REBOOT_STRATEGY="off"
+coreos:
+  units:
+    - name: "format-mnt-data.service"
+      enable: true
+      content: |
+        [Unit]
+        Requires=network-online.target
+        Before=teamcity-server.service mnt-data.mount
+        RequiresMountsFor=/dev/mapper
+        ConditionPathExists=!/dev/mapper/app-data
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/sh /etc/teamcity/format-data-drive.sh
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "mnt-data.mount"
+      enable: true
+      content: |
+        [Unit]
+        Before=teamcity-server.service
+        After=format-mnt-data.service
+        Requires=format-mnt-data.service
+        ConditionVirtualization=!container
+        Conflicts=umount.target
+        [Mount]
+        What=/dev/mapper/app-data
+        Where=/mnt/data
+        Type=ext4
+        Options=
+        [Install]
+        RequiredBy=teamcity-server.service
+    - name: "get-mysql-connector.service"
+      enable: true
+      content: |
+        [Unit]
+        Before=teamcity-server.service
+        After=mnt-data.mount
+        Requires=mnt-data.mount
+        ConditionPathExists=!/mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/lib/jdbc
+        ExecStart=/usr/bin/wget -O /mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar \
+          http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.45/mysql-connector-java-5.1.45.jar
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "get-azure-plugins.service"
+      enable: true
+      content: |
+        [Unit]
+        Before=teamcity-server.service
+        After=mnt-data.mount
+        Requires=mnt-data.mount
+        ConditionPathExists=!/mnt/data/teamcity/plugins/azure-plugins.txt
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/plugins
+        ExecStart=/usr/bin/curl https://raw.githubusercontent.com/dtretyakov/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
+        ExecStart=/bin/bash -c 'cd /mnt/data/teamcity/plugins && curl -K azure-plugins.txt'
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "prepare-config.service"
+      enable: true
+      content: |
+        [Unit]
+        Before=teamcity-server.service
+        After=mnt-data.mount
+        Requires=mnt-data.mount network-online.target
+        ConditionPathExists=!/mnt/data/teamcity/config/database.properties
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/config
+        ExecStart=/bin/bash -c 'echo connectionProperties.user=teamcity@%RDSHost% > /mnt/data/teamcity/config/database.properties'
+        ExecStart=/bin/bash -c 'echo connectionProperties.password=%RDSPassword% >> /mnt/data/teamcity/config/database.properties'
+        ExecStart=/bin/bash -c 'echo connectionUrl=jdbc\\:mysql\\://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?autoReconnect=true >> /mnt/data/teamcity/config/database.properties'
+        ExecStart=/usr/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "teamcity-update.service"
+      command: "start"
+      content: |
+        [Unit]
+        After=docker.service
+        Before=teamcity-server.service teamcity-agent.service
+        Requires=docker.service network-online.target
+
+        [Service]
+        ExecStart=/bin/sh /etc/teamcity/update.sh
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "teamcity-server.service"
+      command: "start"
+      content: |
+        [Unit]
+        Description=TeamCity Server
+        After=docker.service mnt-data.mount get-mysql-connector.service get-azure-plugins.service prepare-config.service teamcity-update.service
+        Requires=docker.service mnt-data.mount get-mysql-connector.service get-azure-plugins.service prepare-config.service teamcity-update.service
+
+        [Service]
+        EnvironmentFile=/etc/teamcity/version
+        TimeoutStartSec=1200s
+        ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-server:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-server' | grep -Eo '^[^ ]+' | xargs -r docker rmi"
+        ExecStart=/usr/bin/docker run \
+          -e TEAMCITY_SERVER_MEM_OPTS="-Xmx$(($(grep MemTotal /proc/meminfo | awk '{print $2}') / 2))k -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m" \
+          -v /mnt/data/teamcity:/data/teamcity_server/datadir \
+          -v /mnt/data/logs/teamcity:/opt/teamcity/logs \
+          -v /mnt/data/temp/teamcity:/opt/teamcity/temp \
+          -p 80:8111 \
+          --name teamcity-server \
+          jetbrains/teamcity-server:${TEAMCITY_VERSION}
+        ExecStop=-/usr/bin/docker exec teamcity-server /opt/teamcity/bin/teamcity-server.sh stop 60
+        ExecStopPost=-/usr/bin/docker stop teamcity-server
+        ExecStopPost=-/usr/bin/docker rm teamcity-server
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "teamcity-agent.service"
+      command: "start"
+      content: |
+        [Unit]
+        Description=TeamCity Agent
+        After=teamcity-server.service coreos-metadata.service teamcity-update.service
+        Requires=teamcity-server.service coreos-metadata.service teamcity-update.service
+
+        [Service]
+        EnvironmentFile=/etc/teamcity/version
+        TimeoutStartSec=1200s
+        EnvironmentFile=/run/metadata/coreos
+        ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-agent:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-agent' | grep -Eo '^[^ ]+' | xargs -r docker rmi"
+        ExecStart=/usr/bin/docker run \
+          -v /mnt/data/temp/teamcity:/opt/teamcity/temp \
+          -e SERVER_URL=${COREOS_AZURE_IPV4_DYNAMIC} \
+          -e AGENT_NAME=Default \
+          --name teamcity-agent \
+          jetbrains/teamcity-agent:${TEAMCITY_VERSION}
+        ExecStop=-/usr/bin/docker stop teamcity-agent
+        ExecStopPost=-/usr/bin/docker rm teamcity-agent
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target

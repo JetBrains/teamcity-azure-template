@@ -1,0 +1,11 @@
+# Azure Cloud Agents
+url = "https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:TeamcityAzurePlugin_BuildResourceManager),tag:deploy,branch:default:any/artifacts/content/cloud-azure-arm.zip?guest=1"
+output = "cloud-azure-arm.zip"
+
+# Azure Cloud Storage
+url = "https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:TeamCityPluginsByJetBrains_TeamcityAzureStorage_Build),tag:release,branch:default:any/artifacts/content/azure-artifact-storage.zip?guest=1"
+output = "azure-artifact-storage.zip"
+
+# Azure Active Directory
+url = "https://teamcity.jetbrains.com/app/rest/builds/buildType:(id:TeamCityPluginsByJetBrains_AzureSupport_AzureActiveDirectoryPlugi),tag:release,branch:default:any/artifacts/content/azure-active-directory.zip?guest=1"
+output = "azure-active-directory.zip"
