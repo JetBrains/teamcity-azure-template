@@ -26,11 +26,12 @@ write_files:
     permissions: 0755
     content: |
       #!/bin/bash
-      if [ -b /dev/sdc1 ]; then
-        DRIVE="/dev/sdb"
-      else
-        DRIVE="/dev/sdc"
-      fi
+      for letter in {a..c}; do
+        DRIVE="/dev/sd${letter}"
+        if [ ! -b "${DRIVE}1" ]; then
+          break
+        fi
+      done
       /usr/sbin/pvcreate ${DRIVE}
       /usr/sbin/vgcreate app ${DRIVE}
       /usr/sbin/lvcreate -l 100%FREE -n data app
