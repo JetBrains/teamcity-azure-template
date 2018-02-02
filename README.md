@@ -4,9 +4,11 @@
 
 The template allows to deploy TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates MySQL database, virtual machine with CoreOS and starts TeamCity in docker container.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json) 
+**Note**: You need to deploy it into dedicated resource group.
 
-Template provides following installation types:
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json)
+
+List of pre-configured installation types:
 
 | Installation Size | VM Size         | VM Data Disk | Database                    |
 | ----------------- |---------------- | ------------ | --------------------------- |
