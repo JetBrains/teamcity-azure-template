@@ -8,6 +8,14 @@ The template allows to deploy TeamCity [server](https://hub.docker.com/r/jetbrai
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json)
 
+## Parameters
+
+#### TeamCity Version
+
+Allows to specify required version of TeamCity for deployment.
+
+#### Installation Size
+
 List of pre-configured installation types:
 
 | Installation Size | VM Size         | VM Data Disk | Database                    |
@@ -17,6 +25,18 @@ List of pre-configured installation types:
 | Large             | Standard_F4s_v2 | 128 GB SSD   | Standard / 100 DTU / 125 GB |
 
 **Note**: Pricing for Azure [virtual machines](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/) and [MySQL database](https://azure.microsoft.com/en-us/pricing/details/mysql/).
+
+#### VM Admin Username
+
+Allows to specify username used to login to virtual machine where TeamCity is running.
+
+#### SSH Key Data
+
+Allows to specify [publish ssh key](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed) for user used to connect to virtial machine with TeamCity.
+
+#### Database Password
+
+Allows to speicify password for MySQL database.
 
 ## Configuration
 
@@ -34,7 +54,7 @@ The template installs the following Azure integration plugins in TeamCity:
 * [Azure Artifacts Storage](https://plugins.jetbrains.com/plugin/9617-azure-artifact-storage) - allows to store build artifacts in Azure Cloud Storage Blobs.
 * [Azure Active Directory](https://plugins.jetbrains.com/plugin/9083-azure-active-directory) - allows to use Azure AD authentication in TeamCity.
 
-## Update TeamCity
+## TeamCity Update
 
 While deployment `teamcity` virtual machine tagged with `teamcity-version` tag.
 To update TeamCity to the different version update the tag value and restart TeamCity systemd services or virtual machine.
