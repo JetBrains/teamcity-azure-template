@@ -4,7 +4,7 @@
 
 The template allows to deploy TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates MySQL database, virtual machine with CoreOS and starts TeamCity in docker container.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdtretyakov%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json) 
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json) 
 
 Template provides following installation types:
 
@@ -23,6 +23,14 @@ After deployment you will be able to connect to the `teamcity` virtual machine v
 * `teamcity-server.service` - launches TeamCity server.
 * `teamcity-agent.service` - launches TeamCity agent. 
 * `teamcity-update.service` - check for TeamCity version updates.
+
+## Azure Plugins
+
+The template installs the following Azure integration plugins in TeamCity:
+
+* [Azure Cloud Agents](https://plugins.jetbrains.com/plugin/9260-azure-resource-manager-cloud-support) - allows to scale the pool of TeamCity build agents by leveraging Azure virtual machines.
+* [Azure Artifacts Storage](https://plugins.jetbrains.com/plugin/9617-azure-artifact-storage) - allows to store build artifacts in Azure Cloud Storage Blobs.
+* [Azure Active Directory](https://plugins.jetbrains.com/plugin/9083-azure-active-directory) - allows to use Azure AD authentication in TeamCity.
 
 ## Update TeamCity
 

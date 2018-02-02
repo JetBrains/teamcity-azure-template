@@ -107,7 +107,7 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/plugins
-        ExecStart=/usr/bin/curl https://raw.githubusercontent.com/dtretyakov/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
+        ExecStart=/usr/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
         ExecStart=/bin/bash -c 'cd /mnt/data/teamcity/plugins && curl -K azure-plugins.txt'
 
         [Install]
