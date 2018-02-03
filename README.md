@@ -46,9 +46,9 @@ After deployment you will be able to connect to the `teamcity` virtual machine v
 * `teamcity-agent.service` - launches TeamCity agent. 
 * `teamcity-update.service` - check for TeamCity version updates.
 
-## Azure Plugins
+### Installed Plugins
 
-The template installs the following Azure integration plugins in TeamCity:
+The template installs the following Azure integrations in TeamCity:
 
 * [Azure Cloud Agents](https://plugins.jetbrains.com/plugin/9260-azure-resource-manager-cloud-support) - allows to scale the pool of TeamCity build agents by leveraging Azure virtual machines.
 * [Azure Artifacts Storage](https://plugins.jetbrains.com/plugin/9617-azure-artifact-storage) - allows to store build artifacts in Azure Cloud Storage Blobs.
