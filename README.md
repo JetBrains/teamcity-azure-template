@@ -56,8 +56,7 @@ The template installs the following Azure integrations in TeamCity:
 
 ## TeamCity Update
 
-While deployment `teamcity` virtual machine tagged with `teamcity-version` tag.
-To update TeamCity to the different version update the tag value and restart TeamCity systemd services or virtual machine.
+While deployment `teamcity` virtual machine will be tagged by `teamcity-version` tag. To change TeamCity version you need to update the tag value and restart `teamcity-server.service` and `teamcity-agent.service` systemd services or virtual machine.
 
 ## Feedback
 
