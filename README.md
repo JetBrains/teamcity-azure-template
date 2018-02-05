@@ -2,9 +2,9 @@
 
 [![official project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-The template allows to deploy TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates MySQL database, virtual machine with CoreOS and starts TeamCity in docker container.
+The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, avirtual machine with CoreOS and starts TeamCity in a docker container.
 
-**Note**: You need to deploy it into dedicated resource group.
+**Note**: You need to deploy it into a dedicated resource group.
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json)
 
@@ -12,7 +12,7 @@ The template allows to deploy TeamCity [server](https://hub.docker.com/r/jetbrai
 
 #### TeamCity Version
 
-Allows to specify required version of TeamCity for deployment.
+Allows specifying the required version of TeamCity for deployment.
 
 #### Installation Size
 
@@ -28,19 +28,19 @@ List of pre-configured installation types:
 
 #### VM Admin Username
 
-Allows to specify username used to login to virtual machine where TeamCity is running.
+Allows specifying username to login to a virtual machine where TeamCity is running.
 
 #### SSH Key Data
 
-Allows to specify [publish ssh key](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed) for user used to connect to virtial machine with TeamCity.
+Allows specifying a [publish ssh key](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-ssh-keys-detailed) for the user used to connect to virtial machine with TeamCity.
 
 #### Database Password
 
-Allows to speicify password for MySQL database.
+Allows specifying password for the MySQL database.
 
 ## Configuration
 
-After deployment you will be able to connect to the `teamcity` virtual machine via SSH. In CoreOS TeamCity works as a following systemd service:
+After deployment you will be able to connect to the `teamcity` virtual machine via SSH. In CoreOS TeamCity works as the following systemd service:
 
 * `teamcity-server.service` - launches TeamCity server.
 * `teamcity-agent.service` - launches TeamCity agent. 
@@ -56,7 +56,7 @@ The template installs the following Azure integrations in TeamCity:
 
 ## TeamCity Update
 
-While deployment `teamcity` virtual machine will be tagged by `teamcity-version` tag. To change TeamCity version you need to update the tag value and restart `teamcity-server.service` and `teamcity-agent.service` systemd services or virtual machine.
+During deployment, a `teamcity` virtual machine will be tagged with the `teamcity-version` tag. To change the TeamCity version, you need to update the tag value and restart the `teamcity-server.service` and `teamcity-agent.service` systemd services or the virtual machine.
 
 ## Feedback
 
