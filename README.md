@@ -2,7 +2,7 @@
 
 [![official project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, avirtual machine with CoreOS and starts TeamCity in a docker container.
+The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
 
 **Note**: You need to deploy it into a dedicated resource group.
 
