@@ -1,6 +1,6 @@
 # TeamCity Azure Resource Manager Template
 
-[![official project](http://jb.gg/badges/incubator.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
 The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
 
@@ -18,11 +18,11 @@ Allows specifying the required version of TeamCity for deployment.
 
 List of pre-configured installation types:
 
-| Installation Size | VM Size         | VM Data Disk | Database                    |
-| ----------------- |---------------- | ------------ | --------------------------- |
-| Small             | Standard_A2_v2  | 32 GB HDD    | Basic / 50 DTU / 50 GB      |
-| Medium            | Standard_F2s_v2 | 64 GB SSD    | Basic / 100 DTU / 50 GB     |
-| Large             | Standard_F4s_v2 | 128 GB SSD   | Standard / 100 DTU / 125 GB |
+| Installation Size | Typical Usage             | VM Size         | VM Data Disk | Database                    |
+| ----------------- | ------------------------- | --------------- | ------------ | --------------------------- |
+| Small             | 3 users, 100 builds/day   | Standard_A2_v2  | 32 GB HDD    | Basic / 50 DTU / 50 GB      |
+| Medium            | 5 users, 300 builds/day   | Standard_F2s_v2 | 64 GB SSD    | Basic / 100 DTU / 50 GB     |
+| Large             | 20 users, 1000 builds/day | Standard_F4s_v2 | 128 GB SSD   | Standard / 100 DTU / 125 GB |
 
 **Note**: Pricing for Azure [virtual machines](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/) and [MySQL database](https://azure.microsoft.com/en-us/pricing/details/mysql/).
 
