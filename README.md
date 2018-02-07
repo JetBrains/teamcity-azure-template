@@ -6,7 +6,7 @@ The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbra
 
 **Note**: You need to deploy it into a dedicated resource group.
 
-[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FJetBrains%2Fteamcity-azure-template%2Fmaster%2Fazuredeploy.json)
+[![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://goo.gl/nXap7u)
 
 ## Parameters
 
