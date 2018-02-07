@@ -29,7 +29,7 @@
         "Large"
       ],
       "metadata": {
-        "description": "TeamCity installation size: typical usage for Small - 3 users, 100 build/day; Medium - 5 users, 300 build/day; Large - 20 users, 1000 builds/day"
+        "description": "TeamCity installation size: typical usage for Small - 3 users, 100 builds/day; Medium - 5 users, 300 builds/day; Large - 20 users, 1000 builds/day"
       }
     },
     "VMAdminUsername": {
