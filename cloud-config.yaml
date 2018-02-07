@@ -90,8 +90,8 @@ coreos:
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/lib/jdbc
-        ExecStart=/usr/bin/wget -O /mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar \
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity/lib/jdbc
+        ExecStart=/bin/wget -O /mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar \
           http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.45/mysql-connector-java-5.1.45.jar
 
         [Install]
@@ -107,8 +107,8 @@ coreos:
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/plugins
-        ExecStart=/usr/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity/plugins
+        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
         ExecStart=/bin/bash -c 'cd /mnt/data/teamcity/plugins && curl -K azure-plugins.txt'
 
         [Install]
@@ -124,11 +124,11 @@ coreos:
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/bin/mkdir -p /mnt/data/teamcity/config
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity/config
         ExecStart=/bin/bash -c 'echo connectionProperties.user=teamcity@%RDSHost% > /mnt/data/teamcity/config/database.properties'
         ExecStart=/bin/bash -c 'echo connectionProperties.password=%RDSPassword% >> /mnt/data/teamcity/config/database.properties'
         ExecStart=/bin/bash -c 'echo connectionUrl=jdbc\\:mysql\\://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?autoReconnect=true >> /mnt/data/teamcity/config/database.properties'
-        ExecStart=/usr/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
+        ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
 
         [Install]
         WantedBy=multi-user.target
@@ -158,7 +158,7 @@ coreos:
         EnvironmentFile=/etc/teamcity/version
         TimeoutStartSec=1200s
         ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-server:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-server' | grep -Eo '^[^ ]+' | xargs -r docker rmi"
-        ExecStart=/usr/bin/docker run \
+        ExecStartPre=/usr/bin/docker create \
           -e TEAMCITY_SERVER_MEM_OPTS="-Xmx$(($(grep MemTotal /proc/meminfo | awk '{print $2}') / 2))k -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m" \
           -v /mnt/data/teamcity:/data/teamcity_server/datadir \
           -v /mnt/data/logs/teamcity:/opt/teamcity/logs \
@@ -166,6 +166,8 @@ coreos:
           -p 80:8111 \
           --name teamcity-server \
           jetbrains/teamcity-server:${TEAMCITY_VERSION}
+        ExecStartPre=/bin/sh -c "echo 'azure.vm.coreos' > dist && docker cp dist teamcity-server:/opt/teamcity/webapps/ROOT/WEB-INF/DistributionType.txt && rm dist"
+        ExecStart=/usr/bin/docker start teamcity-server -a
         ExecStop=-/usr/bin/docker exec teamcity-server /opt/teamcity/bin/teamcity-server.sh stop 60
         ExecStopPost=-/usr/bin/docker stop teamcity-server
         ExecStopPost=-/usr/bin/docker rm teamcity-server
