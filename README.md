@@ -18,11 +18,11 @@ Allows specifying the required version of TeamCity for deployment.
 
 List of pre-configured installation types:
 
-| Installation Size | Typical Usage             | VM Size         | VM Data Disk | Database                    |
-| ----------------- | ------------------------- | --------------- | ------------ | --------------------------- |
-| Small             | 3 users, 100 builds/day   | Standard_A2_v2  | 32 GB HDD    | Basic / 50 DTU / 50 GB      |
-| Medium            | 5 users, 300 builds/day   | Standard_F2s_v2 | 64 GB SSD    | Basic / 100 DTU / 50 GB     |
-| Large             | 20 users, 1000 builds/day | Standard_F4s_v2 | 128 GB SSD   | Standard / 100 DTU / 125 GB |
+| Installation Size | Typical Usage             | VM Size        | VM Data Disk | Database                    |
+| ----------------- | ------------------------- | -------------- | ------------ | --------------------------- |
+| Small             | 3 users, 100 builds/day   | Standard_A2_v2 | 32 GB HDD    | Basic / 50 DTU / 50 GB      |
+| Medium            | 5 users, 300 builds/day   | Standard_F2s   | 64 GB SSD    | Basic / 100 DTU / 50 GB     |
+| Large             | 20 users, 1000 builds/day | Standard_F4s   | 128 GB SSD   | Standard / 100 DTU / 125 GB |
 
 **Note**: Pricing for Azure [virtual machines](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/) and [MySQL database](https://azure.microsoft.com/en-us/pricing/details/mysql/).
 
