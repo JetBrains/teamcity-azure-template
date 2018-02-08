@@ -50,7 +50,7 @@
       "minLength": 8,
       "maxLength": 128,
       "metadata": {
-        "description": "Azure database for MySQL administrator password"
+        "description": "Password for MySQL database: it must contain at least 1 numeric, 1 lowercase, 1 uppercase and 1 special character"
       }
     }
   },
