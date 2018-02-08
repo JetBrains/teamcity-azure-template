@@ -36,6 +36,11 @@ write_files:
       /usr/sbin/vgcreate app ${DRIVE}
       /usr/sbin/lvcreate -l 100%FREE -n data app
       /usr/sbin/mkfs.ext4 /dev/mapper/app-data
+  - path: "/etc/teamcity/database.properties"
+    content: |
+      connectionProperties.user=teamcity@%RDSHost%
+      connectionProperties.password=%RDSPassword%
+      connectionUrl=jdbc:mysql://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?autoReconnect=true
   - path: "/etc/teamcity/disabled-plugins.xml"
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
@@ -120,14 +125,12 @@ coreos:
         Before=teamcity-server.service
         After=mnt-data.mount
         Requires=mnt-data.mount network-online.target
-        ConditionPathExists=!/mnt/data/teamcity/config/database.properties
+        ConditionPathExists=!/mnt/data/teamcity/config
 
         [Service]
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity/config
-        ExecStart=/bin/bash -c 'echo connectionProperties.user=teamcity@%RDSHost% > /mnt/data/teamcity/config/database.properties'
-        ExecStart=/bin/bash -c "echo 'connectionProperties.password=%RDSPassword%' >> /mnt/data/teamcity/config/database.properties"
-        ExecStart=/bin/bash -c 'echo connectionUrl=jdbc\\:mysql\\://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?autoReconnect=true >> /mnt/data/teamcity/config/database.properties'
+        ExecStart=/bin/mv /etc/teamcity/database.properties /mnt/data/teamcity/config/
         ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
 
         [Install]
