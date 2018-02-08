@@ -126,7 +126,7 @@ coreos:
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity/config
         ExecStart=/bin/bash -c 'echo connectionProperties.user=teamcity@%RDSHost% > /mnt/data/teamcity/config/database.properties'
-        ExecStart=/bin/bash -c 'echo connectionProperties.password=%RDSPassword% >> /mnt/data/teamcity/config/database.properties'
+        ExecStart=/bin/bash -c "echo 'connectionProperties.password=%RDSPassword%' >> /mnt/data/teamcity/config/database.properties"
         ExecStart=/bin/bash -c 'echo connectionUrl=jdbc\\:mysql\\://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?autoReconnect=true >> /mnt/data/teamcity/config/database.properties'
         ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
 

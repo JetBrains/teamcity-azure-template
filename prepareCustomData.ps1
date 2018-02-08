@@ -9,7 +9,7 @@ if (!(Test-Path $cloudConfigFile)) {
 
 $replacementTokens = @{
     "%RDSHost%" = "',variables('dbServerName'),'";
-    "%RDSPassword%" = "',parameters('databasePassword'),'";
+    "%RDSPassword%" = "',replace(replace(parameters('databasePassword'), '\`"', '\\\`"`'), '''', '\\'''),'";
     "%RDSDataBase%" = "',variables('dbName'),'";
 }
 
