@@ -62,7 +62,7 @@
     "networkSubnet": "[concat(resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), '/subnets/default')]",
     "networkSecurityGroupName": "teamcity-nsg",
     "vmName": "teamcity",
-    "vmSize": "[if(equals(parameters('installationSize'), 'Small'), 'Standard_A2_v2', if(equals(parameters('installationSize'), 'Medium'), 'Standard_F2s_v2', 'Standard_F4s_v2'))]",
+    "vmSize": "[if(equals(parameters('installationSize'), 'Small'), 'Standard_A2_v2', if(equals(parameters('installationSize'), 'Medium'), 'Standard_F2s', 'Standard_F4s'))]",
     "vmDataDisk": "[if(equals(parameters('installationSize'), 'Small'), 32, if(equals(parameters('installationSize'), 'Medium'), 64, 128))]",
     "storageType": "[if(contains(toLower(substring(variables('VMSize'), 9)), 's'), 'Premium_LRS', 'Standard_LRS')]",
     "sshKeyPath": "[concat('/home/',parameters('VMAdminUsername'),'/.ssh/authorized_keys')]",
