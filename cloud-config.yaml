@@ -91,12 +91,12 @@ coreos:
         Before=teamcity-server.service
         After=mnt-data.mount
         Requires=mnt-data.mount
-        ConditionPathExists=!/mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar
+        ConditionPathExists=!/mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/mkdir -p /mnt/data/teamcity/lib/jdbc
-        ExecStart=/bin/wget -O /mnt/data/teamcity/lib/jdbc/mysql-connector-java-bin.jar \
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/lib/jdbc
+        ExecStart=/bin/wget -O /mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar \
           http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.45/mysql-connector-java-5.1.45.jar
 
         [Install]
@@ -108,13 +108,13 @@ coreos:
         Before=teamcity-server.service
         After=mnt-data.mount
         Requires=mnt-data.mount
-        ConditionPathExists=!/mnt/data/teamcity/plugins/azure-plugins.txt
+        ConditionPathExists=!/mnt/data/teamcity-server/data/plugins/azure-plugins.txt
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/mkdir -p /mnt/data/teamcity/plugins
-        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity/plugins/azure-plugins.txt
-        ExecStart=/bin/bash -c 'cd /mnt/data/teamcity/plugins && curl -K azure-plugins.txt'
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/plugins
+        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity-server/data/plugins/azure-plugins.txt
+        ExecStart=/bin/bash -c 'cd /mnt/data/teamcity-server/data/plugins && curl -K azure-plugins.txt'
 
         [Install]
         WantedBy=multi-user.target
@@ -125,13 +125,13 @@ coreos:
         Before=teamcity-server.service
         After=mnt-data.mount
         Requires=mnt-data.mount network-online.target
-        ConditionPathExists=!/mnt/data/teamcity/config
+        ConditionPathExists=!/mnt/data/teamcity-server/data/config
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/mkdir -p /mnt/data/teamcity/config
-        ExecStart=/bin/mv /etc/teamcity/database.properties /mnt/data/teamcity/config/
-        ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity/config/
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/config
+        ExecStart=/bin/mv /etc/teamcity/database.properties /mnt/data/teamcity-server/data/config/
+        ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity-server/data/config/
 
         [Install]
         WantedBy=multi-user.target
@@ -163,9 +163,9 @@ coreos:
         ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-server:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-server' | grep -Eo '^[^ ]+' | xargs -r docker rmi"
         ExecStartPre=/usr/bin/docker create \
           -e TEAMCITY_SERVER_MEM_OPTS="-Xmx$(($(grep MemTotal /proc/meminfo | awk '{print $2}') / 2))k -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m" \
-          -v /mnt/data/teamcity:/data/teamcity_server/datadir \
-          -v /mnt/data/logs/teamcity:/opt/teamcity/logs \
-          -v /mnt/data/temp/teamcity:/opt/teamcity/temp \
+          -v /mnt/data/teamcity-server/data:/data/teamcity_server/datadir \
+          -v /mnt/data/teamcity-server/logs:/opt/teamcity/logs \
+          -v /mnt/resource/teamcity-server/temp:/opt/teamcity/temp \
           -p 80:8111 \
           --name teamcity-server \
           jetbrains/teamcity-server:${TEAMCITY_VERSION}
@@ -192,12 +192,18 @@ coreos:
         EnvironmentFile=/run/metadata/coreos
         ExecStartPre=/bin/sh -c "docker images --filter 'before=jetbrains/teamcity-agent:${TEAMCITY_VERSION}' --format '{{.ID}} {{.Repository}}' | grep 'jetbrains/teamcity-agent' | grep -Eo '^[^ ]+' | xargs -r docker rmi"
         ExecStart=/usr/bin/docker run \
-          -v /mnt/data/temp/teamcity:/opt/teamcity/temp \
+          -v /mnt/data/teamcity-agent/logs:/opt/buildagent/logs \
+          -v /mnt/data/teamcity-agent/plugins:/opt/buildagent/plugins \
+          -v /mnt/data/teamcity-agent/system:/opt/buildagent/system \
+          -v /mnt/resource/teamcity-agent/temp:/opt/buildagent/temp \
+          -v /mnt/resource/teamcity-server/temp:/opt/teamcity/temp \
+          -v /mnt/data/teamcity-agent/tools:/opt/buildagent/tools \
           -e SERVER_URL=${COREOS_AZURE_IPV4_DYNAMIC} \
           -e AGENT_NAME=Default \
           --name teamcity-agent \
           jetbrains/teamcity-agent:${TEAMCITY_VERSION}
-        ExecStop=-/usr/bin/docker stop teamcity-agent
+        ExecStop=-/usr/bin/docker exec teamcity-agent /opt/buildagent/bin/agent.sh stop
+        ExecStopPost=-/usr/bin/docker stop teamcity-agent
         ExecStopPost=-/usr/bin/docker rm teamcity-agent
         Restart=always
 
