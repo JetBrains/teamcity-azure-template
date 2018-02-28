@@ -210,13 +210,49 @@
           "type": "databases",
           "name": "[variables('dbName')]",
           "apiVersion": "2017-04-30-preview",
+          "dependsOn": [
+            "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
+          ],
           "properties": {
             "charset": "utf8",
             "collation": "utf8_general_ci"
-          },
+          }
+        },
+        {
+          "type": "configurations",
+          "name": "long_query_time",
+          "apiVersion": "2017-04-30-preview",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
-          ]
+          ],
+          "properties": {
+            "value": "5",
+            "source": "user-override"
+          }
+        },
+        {
+          "type": "configurations",
+          "name": "slow_query_log",
+          "apiVersion": "2017-04-30-preview",
+          "dependsOn": [
+            "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
+          ],
+          "properties": {
+            "value": "ON",
+            "source": "user-override"
+          }
+        },
+        {
+          "type": "configurations",
+          "name": "max_allowed_packet",
+          "apiVersion": "2017-04-30-preview",
+          "dependsOn": [
+            "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
+          ],
+          "properties": {
+            "value": "16777216",
+            "source": "user-override"
+          }
         }
       ]
     },
