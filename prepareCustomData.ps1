@@ -11,6 +11,7 @@ $replacementTokens = @{
     "%RDSHost%" = "',variables('dbServerName'),'";
     "%RDSPassword%" = "',replace(parameters('databasePassword'), '\\', '\\\\'),'";
     "%RDSDataBase%" = "',variables('dbName'),'";
+    "%CORE_USER%" = "',parameters('VMAdminUsername'),'";
 }
 
 $content = Get-Content -Path $cloudConfigFile -Raw

@@ -132,6 +132,10 @@ coreos:
         ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/config
         ExecStart=/bin/mv /etc/teamcity/database.properties /mnt/data/teamcity-server/data/config/
         ExecStart=/bin/mv /etc/teamcity/disabled-plugins.xml /mnt/data/teamcity-server/data/config/
+        ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/keys
+        ExecStart=/usr/bin/ssh-keygen -f /mnt/data/teamcity-server/keys/id_rsa -t rsa -N ''
+        ExecStart=/bin/sh -c "ssh-keyscan $(ip addr show dev docker0 | grep 'inet ' | cut -d / -f 1 | awk '{ print $2 }') >> /mnt/data/teamcity-server/keys/known_hosts"
+        ExecStart=/bin/sh -c "cat /mnt/data/teamcity-server/keys/id_rsa.pub >> /home/%CORE_USER%/.ssh/authorized_keys"
 
         [Install]
         WantedBy=multi-user.target
@@ -164,6 +168,7 @@ coreos:
         ExecStartPre=/usr/bin/docker create \
           -e TEAMCITY_SERVER_MEM_OPTS="-Xmx$(($(grep MemTotal /proc/meminfo | awk '{print $2}') / 2))k -XX:MaxPermSize=270m -XX:ReservedCodeCacheSize=350m" \
           -v /mnt/data/teamcity-server/data:/data/teamcity_server/datadir \
+          -v /mnt/data/teamcity-server/keys:/root/.ssh:ro \
           -v /mnt/data/teamcity-server/logs:/opt/teamcity/logs \
           -v /mnt/resource/teamcity-server/temp:/opt/teamcity/temp \
           -p 80:8111 \
@@ -174,6 +179,21 @@ coreos:
         ExecStop=-/usr/bin/docker exec teamcity-server /opt/teamcity/bin/teamcity-server.sh stop 60
         ExecStopPost=-/usr/bin/docker stop teamcity-server
         ExecStopPost=-/usr/bin/docker rm teamcity-server
+        Restart=always
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: "teamcity-server-msi.service"
+      command: "start"
+      content: |
+        [Unit]
+        Description=TeamCity Server MSI Tunnel
+        After=teamcity-server.service
+        Requires=teamcity-server.service
+        PartOf=teamcity-server.service
+
+        [Service]
+        ExecStart=/bin/sh -c "docker exec teamcity-server ssh -4 -tt -L localhost:50342:localhost:50342 %CORE_USER%@$(ip addr show dev docker0 | grep 'inet ' | cut -d / -f 1 | awk '{ print $2 }')"
         Restart=always
 
         [Install]
