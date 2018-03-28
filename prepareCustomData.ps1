@@ -7,11 +7,14 @@ if (!(Test-Path $cloudConfigFile)) {
     exit 1
 }
 
+Write-Host "Updating azuredeploy.json file"
+
 $replacementTokens = @{
     "%RDSHost%" = "',variables('dbServerName'),'";
     "%RDSPassword%" = "',replace(parameters('databasePassword'), '\\', '\\\\'),'";
     "%RDSDataBase%" = "',variables('dbName'),'";
     "%CORE_USER%" = "',parameters('VMAdminUsername'),'";
+    '$' = '$$';
 }
 
 $content = Get-Content -Path $cloudConfigFile -Raw
@@ -22,4 +25,9 @@ Foreach ($key in $replacementTokens.keys) {
     $json = $json.replace($key, $replacementTokens.Item($key))
 }
 
-Write-Host "[base64(concat('$json'))]"
+$customData = "[base64(concat('$json'))]"
+
+$azuredeploy = (Get-Content 'azuredeploy.json' -Raw).Trim()
+($azuredeploy -replace '("customData": )("\[base64.+?\]")', ('$1"' + $customData + '"')) | Set-Content 'azuredeploy.json'
+
+Write-Host "azuredeploy.json file was updated"
