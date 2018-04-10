@@ -22,20 +22,6 @@ write_files:
         fi
         sleep 60
       done
-  - path: "/etc/teamcity/format-data-drive.sh"
-    permissions: 0755
-    content: |
-      #!/bin/bash
-      for letter in {a..c}; do
-        DRIVE="/dev/sd${letter}"
-        if [ ! -b "${DRIVE}1" ]; then
-          break
-        fi
-      done
-      /usr/sbin/pvcreate ${DRIVE}
-      /usr/sbin/vgcreate app ${DRIVE}
-      /usr/sbin/lvcreate -l 100%FREE -n data app
-      /usr/sbin/mkfs.ext4 /dev/mapper/app-data
   - path: "/etc/teamcity/database.properties"
     content: |
       connectionProperties.user=teamcity@%RDSHost%
@@ -64,7 +50,11 @@ coreos:
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/sh /etc/teamcity/format-data-drive.sh
+        ExecStart=/bin/bash -c \
+          '/usr/sbin/pvcreate /dev/disk/azure/scsi1/lun0 && \
+          /usr/sbin/vgcreate app /dev/disk/azure/scsi1/lun0 && \
+          /usr/sbin/lvcreate -l 100%%FREE -n data app && \
+          /usr/sbin/mkfs.ext4 /dev/mapper/app-data'
 
         [Install]
         WantedBy=multi-user.target
