@@ -1,8 +1,9 @@
 param (
-    [string]$releasesUrl
+    [string]$releasesUrl,
+    [string]$templateFile = 'createUiDefinition.json'
 )
 
-Write-Host "Updating azuredeploy.json file"
+Write-Host "Updating $templateFile file"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $json = Invoke-WebRequest $releasesUrl | ConvertFrom-Json
@@ -19,4 +20,9 @@ foreach($group in $groups) {
 
 Write-Host "Will set the following versions: $versions"
 
-Write-Host "azuredeploy.json file was updated"
+$template = Get-Content $templateFile -Raw | ConvertFrom-Json
+$template.parameters.basics[0].defaultValue = $versions[0]
+$template.parameters.basics[0].constraints.allowedValues = $versions | % { @{ label = $_; value = $_; } }
+$template | ConvertTo-Json -Depth 20 | Set-Content $templateFile
+
+Write-Host "$templateFile file was updated"
