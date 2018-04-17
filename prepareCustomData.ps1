@@ -1,5 +1,6 @@
 param (
-    [string]$cloudConfigFile = 'cloud-config.yaml'
+    [string]$cloudConfigFile = 'cloud-config.yaml',
+    [string]$templateFile = 'azuredeploy.json'
 )
 
 if (!(Test-Path $cloudConfigFile)) {
@@ -7,7 +8,7 @@ if (!(Test-Path $cloudConfigFile)) {
     exit 1
 }
 
-Write-Host "Updating azuredeploy.json file"
+Write-Host "Updating $templateFile file"
 
 $replacementTokens = @{
     "%RDSHost%" = "',variables('dbServerName'),'";
@@ -27,7 +28,7 @@ Foreach ($key in $replacementTokens.keys) {
 
 $customData = "[base64(concat('$json'))]"
 
-$azuredeploy = (Get-Content 'azuredeploy.json' -Raw).Trim()
-($azuredeploy -replace '("customData": )("\[base64.+?\]")', ('$1"' + $customData + '"')) | Set-Content 'azuredeploy.json'
+$template = (Get-Content $templateFile -Raw).Trim()
+($template -replace '("customData": )("\[base64.+?\]")', ('$1"' + $customData + '"')) | Set-Content $templateFile
 
-Write-Host "azuredeploy.json file was updated"
+Write-Host "$templateFile file was updated"
