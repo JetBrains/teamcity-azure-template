@@ -8,6 +8,7 @@
         "name": "teamcityVersion",
         "type": "Microsoft.Common.DropDown",
         "label": "TeamCity version",
+        "defaultValue": "2017.2.3",
         "constraints": {
           "allowedValues": [
             {
@@ -37,9 +38,9 @@
           "sshPublicKey": "SSH public key"
         },
         "toolTip": {
-          "authenticationType": "Authentication Type for the Virtual Machine",
-          "password": "Password for the Virtual Machine",
-          "sshPublicKey": "SSH Public Key for the Virtual Machine"
+          "authenticationType": "Authentication type for the TeamCity virtual machine",
+          "password": "Password for the TeamCity virtual machine",
+          "sshPublicKey": "SSH public key for the TeamCity virtual machine"
         },
         "constraints": {
           "required": true
@@ -54,7 +55,7 @@
         "type": "Microsoft.Common.PasswordBox",
         "label": {
           "password": "MySQL database password",
-          "confirmPassword": "Confirm password"
+          "confirmPassword": "Confirm MySQL password"
         },
         "constraints": {
           "required": true,
@@ -97,18 +98,6 @@
                 }
               ]
             }
-          },
-          {
-            "name": "installationSize",
-            "type": "Microsoft.Compute.SizeSelector",
-            "label": "Virtual machine size",
-            "toolTip": "The size of virtual machine to provision.",
-            "recommendedSizes": [
-              "Standard_D2_v2",
-              "Standard_A2_v2"
-            ],
-            "osPlatform": "Linux",
-            "count": "1"
           },
           {
             "name": "publicIpAddress",
