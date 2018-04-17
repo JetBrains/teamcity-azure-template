@@ -21,8 +21,9 @@
       {
         "name": "adminUsername",
         "type": "Microsoft.Compute.UserNameTextBox",
-        "label": "User name",
-        "toolTip": "Admin username for the machine",
+        "label": "VM user name",
+        "defaultValue": "username",
+        "toolTip": "Admin username for the TeamCity virtual machine",
         "osPlatform": "Linux",
         "constraints": {
           "required": true
@@ -32,10 +33,10 @@
         "name": "SSHCredentials",
         "type": "Microsoft.Compute.CredentialsCombo",
         "label": {
-          "authenticationType": "Authentication type",
-          "password": "Password",
-          "confirmPassword": "Confirm password",
-          "sshPublicKey": "SSH public key"
+          "authenticationType": "VM authentication type",
+          "password": "VM password",
+          "confirmPassword": "Confirm VM password",
+          "sshPublicKey": "VM SSH public key"
         },
         "toolTip": {
           "authenticationType": "Authentication type for the TeamCity virtual machine",
@@ -54,7 +55,7 @@
         "name": "databasePassword",
         "type": "Microsoft.Common.PasswordBox",
         "label": {
-          "password": "MySQL database password",
+          "password": "MySQL password",
           "confirmPassword": "Confirm MySQL password"
         },
         "constraints": {
@@ -82,6 +83,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "TeamCity installation size",
             "toolTip": "TeamCity installation size: typical usage for Small - 3 users, 100 builds/day; Medium - 5 users, 300 builds/day; Large - 20 users, 1000 builds/day",
+            "defaultValue": "Medium",
             "constraints": {
               "allowedValues": [
                 {
@@ -103,11 +105,11 @@
             "name": "publicIpAddress",
             "type": "Microsoft.Network.PublicIpAddressCombo",
             "label": {
-              "publicIpAddress": "Public IP address for the TeamCity",
-              "domainNameLabel": "Domain name label for the TeamCity"
+              "publicIpAddress": "Public IP address",
+              "domainNameLabel": "Domain name label"
             },
             "toolTip": {
-              "publicIpAddress": "Only new public IP is currently supported. Name must be unique across a resource group",
+              "publicIpAddress": "Public IP for the TeamCity, name must be unique across a resource group",
               "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
             },
             "defaultValue": {
@@ -115,8 +117,8 @@
               "domainNameLabel": "[concat('teamcity-', take(replace(guid(), '-', ''), 10))]"
             },
             "options": {
-              "hideExisting": true,
-              "hideNone": true
+              "hideExisting": false,
+              "hideNone": false
             },
             "constraints": {
               "required": {
@@ -136,7 +138,7 @@
               "subnets": "Subnets for the virtual network"
             },
             "defaultValue": {
-              "name": "VirtualNetwork",
+              "name": "teamcity-vnet",
               "addressPrefixSize": "/16"
             },
             "constraints": {
@@ -146,7 +148,7 @@
               "subnet1": {
                 "label": "Subnet",
                 "defaultValue": {
-                  "name": "Subnet-1",
+                  "name": "default",
                   "addressPrefixSize": "/24"
                 },
                 "constraints": {
@@ -160,7 +162,8 @@
           {
             "name": "storageAccount",
             "type": "Microsoft.Storage.StorageAccountSelector",
-            "label": "Storage Account for the TeamCity",
+            "label": "Storage account",
+            "toolTip": "Storage account for TeamCity which could be used in integrations",
             "defaultValue": {
               "type": "Standard_LRS",
               "name": "[concat('teamcity', take(replace(guid(), '-', ''), 10))]"
