@@ -184,6 +184,7 @@
       "VMAdminUsername": "[basics('adminUsername')]",
       "authenticationType": "[basics('SSHCredentials').authenticationType]",
       "adminPasswordOrKey": "[coalesce(basics('SSHCredentials').password, basics('SSHCredentials').sshPublicKey)]",
+      "databasePassword": "[basics('databasePassword')]",
       "installationSize": "[steps('additionalSettings').installationSize]",
 
       "virtualNetworkNewOrExisting": "[steps('additionalSettings').virtualNetwork.newOrExisting]",
