@@ -180,7 +180,7 @@
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
     "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')))]",
     "storageContributorRoleId": "[guid(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'storage'))]",
-    "customData": ""
+    "customData": "[base64...]"
   },
   "resources": [
     {
