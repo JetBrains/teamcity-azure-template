@@ -1,0 +1,214 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Compute.MultiVm",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "teamcityVersion",
+        "type": "Microsoft.Common.DropDown",
+        "label": "TeamCity version",
+        "constraints": {
+          "allowedValues": [
+            {
+              "label": "2017.2.3",
+              "value": "2017.2.3"
+            }
+          ]
+        }
+      },
+      {
+        "name": "adminUsername",
+        "type": "Microsoft.Compute.UserNameTextBox",
+        "label": "User name",
+        "toolTip": "Admin username for the machine",
+        "osPlatform": "Linux",
+        "constraints": {
+          "required": true
+        }
+      },
+      {
+        "name": "SSHCredentials",
+        "type": "Microsoft.Compute.CredentialsCombo",
+        "label": {
+          "authenticationType": "Authentication type",
+          "password": "Password",
+          "confirmPassword": "Confirm password",
+          "sshPublicKey": "SSH public key"
+        },
+        "toolTip": {
+          "authenticationType": "Authentication Type for the Virtual Machine",
+          "password": "Password for the Virtual Machine",
+          "sshPublicKey": "SSH Public Key for the Virtual Machine"
+        },
+        "constraints": {
+          "required": true
+        },
+        "options": {
+          "hideConfirmation": false
+        },
+        "osPlatform": "Linux"
+      },
+      {
+        "name": "databasePassword",
+        "type": "Microsoft.Common.PasswordBox",
+        "label": {
+          "password": "MySQL database password",
+          "confirmPassword": "Confirm password"
+        },
+        "constraints": {
+          "required": true,
+          "regex": "^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])|(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])|(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])).{8,128}$",
+          "validationMessage": "Password must be at least 8 characters long and have 3 out of the following: one number, one lower case, one upper case, or one special character"
+        },
+        "options": {
+          "hideConfirmation": false
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "additionalSettings",
+        "label": "Additional Settings",
+        "subLabel": {
+          "preValidation": "Configure the additional settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Additional Settings",
+        "elements": [
+          {
+            "name": "installationSize",
+            "type": "Microsoft.Common.DropDown",
+            "label": "TeamCity installation size",
+            "toolTip": "TeamCity installation size: typical usage for Small - 3 users, 100 builds/day; Medium - 5 users, 300 builds/day; Large - 20 users, 1000 builds/day",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Small",
+                  "value": "Small"
+                },
+                {
+                  "label": "Medium",
+                  "value": "Medium"
+                },
+                {
+                  "label": "Large",
+                  "value": "Large"
+                }
+              ]
+            }
+          },
+          {
+            "name": "installationSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Virtual machine size",
+            "toolTip": "The size of virtual machine to provision.",
+            "recommendedSizes": [
+              "Standard_D2_v2",
+              "Standard_A2_v2"
+            ],
+            "osPlatform": "Linux",
+            "count": "1"
+          },
+          {
+            "name": "publicIpAddress",
+            "type": "Microsoft.Network.PublicIpAddressCombo",
+            "label": {
+              "publicIpAddress": "Public IP address for the TeamCity",
+              "domainNameLabel": "Domain name label for the TeamCity"
+            },
+            "toolTip": {
+              "publicIpAddress": "Only new public IP is currently supported. Name must be unique across a resource group",
+              "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
+            },
+            "defaultValue": {
+              "publicIpAddressName": "teamcity-ip",
+              "domainNameLabel": "[concat('teamcity-', take(replace(guid(), '-', ''), 10))]"
+            },
+            "options": {
+              "hideExisting": true,
+              "hideNone": true
+            },
+            "constraints": {
+              "required": {
+                "domainNameLabel": true
+              }
+            }
+          },
+          {
+            "name": "virtualNetwork",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual network",
+              "subnets": "Subnets"
+            },
+            "toolTip": {
+              "virtualNetwork": "Name of the virtual network",
+              "subnets": "Subnets for the virtual network"
+            },
+            "defaultValue": {
+              "name": "VirtualNetwork",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/16"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet",
+                "defaultValue": {
+                  "name": "Subnet-1",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/24",
+                  "minAddressCount": 12,
+                  "requireContiguousAddresses": false
+                }
+              }
+            }
+          },
+          {
+            "name": "storageAccount",
+            "type": "Microsoft.Storage.StorageAccountSelector",
+            "label": "Storage Account for the TeamCity",
+            "defaultValue": {
+              "type": "Standard_LRS",
+              "name": "[concat('teamcity', take(replace(guid(), '-', ''), 10))]"
+            },
+            "constraints": {
+              "allowedTypes": [
+                "Standard_LRS",
+                "Standard_GRS"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "location": "[location()]",
+      "teamcityVersion": "[basics('teamcityVersion')]",
+      "VMAdminUsername": "[basics('adminUsername')]",
+      "authenticationType": "[basics('SSHCredentials').authenticationType]",
+      "adminPasswordOrKey": "[coalesce(basics('SSHCredentials').password, basics('SSHCredentials').sshPublicKey)]",
+      "installationSize": "[steps('additionalSettings').installationSize]",
+
+      "virtualNetworkNewOrExisting": "[steps('additionalSettings').virtualNetwork.newOrExisting]",
+      "virtualNetworkName": "[steps('additionalSettings').virtualNetwork.name]",
+      "addressPrefixes": "[steps('additionalSettings').virtualNetwork.addressPrefixes]",
+      "subnetName": "[steps('additionalSettings').virtualNetwork.subnets.subnet1.name]",
+      "subnetPrefix": "[steps('additionalSettings').virtualNetwork.subnets.subnet1.addressPrefix]",
+      "virtualNetworkResourceGroupName": "[steps('additionalSettings').virtualNetwork.resourceGroup]",
+
+      "publicIpNewOrExisting": "[steps('additionalSettings').publicIpAddress.newOrExistingOrNone]",
+      "publicIpDns": "[steps('additionalSettings').publicIpAddress.domainNameLabel]",
+      "publicIpName": "[steps('additionalSettings').publicIpAddress.name]",
+      "publicIpResourceGroupName": "[steps('additionalSettings').publicIpAddress.resourceGroup]",
+
+      "storageNewOrExisting": "[steps('additionalSettings').storageAccount.newOrExisting]",
+      "storageAccountName": "[steps('additionalSettings').storageAccount.name]",
+      "storageAccountType": "[steps('additionalSettings').storageAccount.type]"
+    }
+  }
+}
