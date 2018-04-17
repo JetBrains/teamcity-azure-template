@@ -113,7 +113,7 @@
               "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
             },
             "defaultValue": {
-              "publicIpAddressName": "teamcity-ip",
+              "publicIpAddressName": "teamcity-pip",
               "domainNameLabel": "[concat('teamcity-', take(replace(guid(), '-', ''), 10))]"
             },
             "options": {
@@ -148,7 +148,7 @@
               "subnet1": {
                 "label": "Subnet",
                 "defaultValue": {
-                  "name": "default",
+                  "name": "teamcity",
                   "addressPrefixSize": "/24"
                 },
                 "constraints": {
