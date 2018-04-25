@@ -5,6 +5,18 @@
   "parameters": {
     "basics": [
       {
+        "name": "vmName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Name",
+        "toolTip": "The name of the TeamCity virtual machine.",
+        "defaultValue": "teamcity",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-z0-9A-Z-]{3,79}$",
+          "validationMessage": "The name must be between 3 and 79 characters long and contain letters, numbers and hyphens only."
+        }
+      },
+      {
         "name": "teamcityVersion",
         "type": "Microsoft.Common.DropDown",
         "label": "TeamCity version",
@@ -17,58 +29,137 @@
             }
           ]
         }
-      },
-      {
-        "name": "adminUsername",
-        "type": "Microsoft.Compute.UserNameTextBox",
-        "label": "VM user name",
-        "defaultValue": "username",
-        "toolTip": "Admin username for the TeamCity virtual machine",
-        "osPlatform": "Linux",
-        "constraints": {
-          "required": true
-        }
-      },
-      {
-        "name": "SSHCredentials",
-        "type": "Microsoft.Compute.CredentialsCombo",
-        "label": {
-          "authenticationType": "VM authentication type",
-          "password": "VM password",
-          "confirmPassword": "Confirm VM password",
-          "sshPublicKey": "VM SSH public key"
-        },
-        "toolTip": {
-          "authenticationType": "Authentication type for the TeamCity virtual machine",
-          "password": "Password for the TeamCity virtual machine",
-          "sshPublicKey": "SSH public key for the TeamCity virtual machine"
-        },
-        "constraints": {
-          "required": true
-        },
-        "options": {
-          "hideConfirmation": false
-        },
-        "osPlatform": "Linux"
-      },
-      {
-        "name": "databasePassword",
-        "type": "Microsoft.Common.PasswordBox",
-        "label": {
-          "password": "MySQL password",
-          "confirmPassword": "Confirm MySQL password"
-        },
-        "constraints": {
-          "required": true,
-          "regex": "^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])|(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])|(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])).{8,128}$",
-          "validationMessage": "Password must be at least 8 characters long and have 3 out of the following: one number, one lower case, one upper case, or one special character"
-        },
-        "options": {
-          "hideConfirmation": false
-        }
       }
     ],
     "steps": [
+      {
+        "name": "vmSettings",
+        "label": "Virtual Machine Settings",
+        "subLabel": {
+          "preValidation": "Configure the virtual machine settings",
+          "postValidation": "Done"
+        },
+        "bladeTitle": "Virtual Machine Settings",
+        "elements": [
+          {
+            "name": "adminUsername",
+            "type": "Microsoft.Compute.UserNameTextBox",
+            "label": "VM user name",
+            "toolTip": "Admin username for the TeamCity virtual machine",
+            "osPlatform": "Linux",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "SSHCredentials",
+            "type": "Microsoft.Compute.CredentialsCombo",
+            "label": {
+              "authenticationType": "VM authentication type",
+              "password": "VM password",
+              "confirmPassword": "Confirm VM password",
+              "sshPublicKey": "VM SSH public key"
+            },
+            "toolTip": {
+              "authenticationType": "Authentication type for the TeamCity virtual machine",
+              "password": "Password for the TeamCity virtual machine",
+              "sshPublicKey": "SSH public key for the TeamCity virtual machine"
+            },
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "osPlatform": "Linux"
+          },
+          {
+            "name": "vmSize",
+            "type": "Microsoft.Compute.SizeSelector",
+            "label": "Virtual machine size",
+            "toolTip": "The size of virtual machine to provision.",
+            "recommendedSizes": [
+              "Standard_A2_v2",
+              "Standard_F2s",
+              "Standard_F4s"
+            ],
+            "constraints": {
+              "excludedSizes": [
+                "Basic_A0",
+                "Basic_A1",
+                "Basic_A2",
+                "Basic_A3",
+                "Basic_A4"
+              ]
+            },
+            "osPlatform": "Linux",
+            "imageReference": {
+              "publisher": "CoreOS",
+              "offer": "CoreOS",
+              "sku": "Stable"
+            },
+            "count": "1"
+          },
+          {
+            "name": "publicIpAddress",
+            "type": "Microsoft.Network.PublicIpAddressCombo",
+            "label": {
+              "publicIpAddress": "Public IP address",
+              "domainNameLabel": "Domain name label"
+            },
+            "toolTip": {
+              "publicIpAddress": "Public IP for the TeamCity, name must be unique across a resource group",
+              "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
+            },
+            "defaultValue": {
+              "publicIpAddressName": "[concat(basics('vmName'), '-ip')]",
+              "domainNameLabel": "[concat(basics('vmName'), '-', take(replace(guid(), '-', ''), 10))]"
+            },
+            "options": {
+              "hideExisting": false,
+              "hideNone": false
+            },
+            "constraints": {
+              "required": {
+                "domainNameLabel": true
+              }
+            }
+          },
+          {
+            "name": "virtualNetwork",
+            "type": "Microsoft.Network.VirtualNetworkCombo",
+            "label": {
+              "virtualNetwork": "Virtual network",
+              "subnets": "Subnets"
+            },
+            "toolTip": {
+              "virtualNetwork": "Name of the virtual network",
+              "subnets": "Subnets for the virtual network"
+            },
+            "defaultValue": {
+              "name": "[concat(basics('vmName'), '-vnet')]",
+              "addressPrefixSize": "/16"
+            },
+            "constraints": {
+              "minAddressPrefixSize": "/16"
+            },
+            "subnets": {
+              "subnet1": {
+                "label": "Subnet",
+                "defaultValue": {
+                  "name": "[basics('vmName')]",
+                  "addressPrefixSize": "/24"
+                },
+                "constraints": {
+                  "minAddressPrefixSize": "/24",
+                  "minAddressCount": 12,
+                  "requireContiguousAddresses": false
+                }
+              }
+            }
+          }
+        ]
+      },
       {
         "name": "additionalSettings",
         "label": "Additional Settings",
@@ -102,61 +193,19 @@
             }
           },
           {
-            "name": "publicIpAddress",
-            "type": "Microsoft.Network.PublicIpAddressCombo",
+            "name": "databasePassword",
+            "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "publicIpAddress": "Public IP address",
-              "domainNameLabel": "Domain name label"
+              "password": "MySQL password",
+              "confirmPassword": "Confirm MySQL password"
             },
-            "toolTip": {
-              "publicIpAddress": "Public IP for the TeamCity, name must be unique across a resource group",
-              "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
-            },
-            "defaultValue": {
-              "publicIpAddressName": "teamcity-pip",
-              "domainNameLabel": "[concat('teamcity-', take(replace(guid(), '-', ''), 10))]"
+            "constraints": {
+              "required": true,
+              "regex": "^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])|(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])|(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])).{12,128}$",
+              "validationMessage": "Password must be at least 12 characters long and have 3 out of the following: one number, one lower case, one upper case, or one special character"
             },
             "options": {
-              "hideExisting": false,
-              "hideNone": false
-            },
-            "constraints": {
-              "required": {
-                "domainNameLabel": true
-              }
-            }
-          },
-          {
-            "name": "virtualNetwork",
-            "type": "Microsoft.Network.VirtualNetworkCombo",
-            "label": {
-              "virtualNetwork": "Virtual network",
-              "subnets": "Subnets"
-            },
-            "toolTip": {
-              "virtualNetwork": "Name of the virtual network",
-              "subnets": "Subnets for the virtual network"
-            },
-            "defaultValue": {
-              "name": "teamcity-vnet",
-              "addressPrefixSize": "/16"
-            },
-            "constraints": {
-              "minAddressPrefixSize": "/16"
-            },
-            "subnets": {
-              "subnet1": {
-                "label": "Subnet",
-                "defaultValue": {
-                  "name": "teamcity",
-                  "addressPrefixSize": "/24"
-                },
-                "constraints": {
-                  "minAddressPrefixSize": "/24",
-                  "minAddressCount": 12,
-                  "requireContiguousAddresses": false
-                }
-              }
+              "hideConfirmation": false
             }
           },
           {
@@ -166,7 +215,7 @@
             "toolTip": "Storage account for TeamCity which could be used in integrations",
             "defaultValue": {
               "type": "Standard_LRS",
-              "name": "[concat('teamcity', take(replace(guid(), '-', ''), 10))]"
+              "name": "[concat(replace(basics('vmName'), '-', ''), take(replace(guid(), '-', ''), 10))]"
             },
             "constraints": {
               "allowedTypes": [
@@ -180,25 +229,24 @@
     ],
     "outputs": {
       "location": "[location()]",
+      "vmName": "[basics('vmName')]",
       "teamcityVersion": "[basics('teamcityVersion')]",
-      "VMAdminUsername": "[basics('adminUsername')]",
-      "authenticationType": "[basics('SSHCredentials').authenticationType]",
-      "adminPasswordOrKey": "[coalesce(basics('SSHCredentials').password, basics('SSHCredentials').sshPublicKey)]",
-      "databasePassword": "[basics('databasePassword')]",
+      "VMAdminUsername": "[steps('vmSettings').adminUsername]",
+      "authenticationType": "[steps('vmSettings').SSHCredentials.authenticationType]",
+      "adminPasswordOrKey": "[coalesce(steps('vmSettings').SSHCredentials.password, steps('vmSettings').SSHCredentials.sshPublicKey)]",
+      "vmSize": "[steps('vmSettings').vmSize]",
+      "virtualNetworkNewOrExisting": "[steps('vmSettings').virtualNetwork.newOrExisting]",
+      "virtualNetworkName": "[steps('vmSettings').virtualNetwork.name]",
+      "addressPrefixes": "[steps('vmSettings').virtualNetwork.addressPrefixes]",
+      "subnetName": "[steps('vmSettings').virtualNetwork.subnets.subnet1.name]",
+      "subnetPrefix": "[steps('vmSettings').virtualNetwork.subnets.subnet1.addressPrefix]",
+      "virtualNetworkResourceGroupName": "[steps('vmSettings').virtualNetwork.resourceGroup]",
+      "publicIpNewOrExisting": "[steps('vmSettings').publicIpAddress.newOrExistingOrNone]",
+      "publicIpDns": "[steps('vmSettings').publicIpAddress.domainNameLabel]",
+      "publicIpName": "[steps('vmSettings').publicIpAddress.name]",
+      "publicIpResourceGroupName": "[steps('vmSettings').publicIpAddress.resourceGroup]",
       "installationSize": "[steps('additionalSettings').installationSize]",
-
-      "virtualNetworkNewOrExisting": "[steps('additionalSettings').virtualNetwork.newOrExisting]",
-      "virtualNetworkName": "[steps('additionalSettings').virtualNetwork.name]",
-      "addressPrefixes": "[steps('additionalSettings').virtualNetwork.addressPrefixes]",
-      "subnetName": "[steps('additionalSettings').virtualNetwork.subnets.subnet1.name]",
-      "subnetPrefix": "[steps('additionalSettings').virtualNetwork.subnets.subnet1.addressPrefix]",
-      "virtualNetworkResourceGroupName": "[steps('additionalSettings').virtualNetwork.resourceGroup]",
-
-      "publicIpNewOrExisting": "[steps('additionalSettings').publicIpAddress.newOrExistingOrNone]",
-      "publicIpDns": "[steps('additionalSettings').publicIpAddress.domainNameLabel]",
-      "publicIpName": "[steps('additionalSettings').publicIpAddress.name]",
-      "publicIpResourceGroupName": "[steps('additionalSettings').publicIpAddress.resourceGroup]",
-
+      "databasePassword": "[steps('additionalSettings').databasePassword]",
       "storageNewOrExisting": "[steps('additionalSettings').storageAccount.newOrExisting]",
       "storageAccountName": "[steps('additionalSettings').storageAccount.name]",
       "storageAccountType": "[steps('additionalSettings').storageAccount.type]"
