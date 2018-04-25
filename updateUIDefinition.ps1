@@ -6,17 +6,7 @@ $templateFile = 'createUiDefinition.json'
 
 Write-Host "Updating $templateFile file"
 
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$jsonDir = "newtonsoft.json"
-$jsonPath = "$jsonDir/lib/net40/Newtonsoft.Json.dll"
-if (-not (Test-Path $jsonPath)) {
-    $nupkg = "newtonsoft.json.zip"
-    Invoke-WebRequest -Uri https://www.nuget.org/api/v2/package/Newtonsoft.Json/11.0.2 -OutFile $nupkg
-    Expand-Archive $nupkg -DestinationPath $jsonDir
-    Remove-Item -Force $nupkg
-}
-
-Add-Type -Path $jsonPath
+. ./newtonjson.ps1
 
 $json = Invoke-WebRequest $releasesUrl | ConvertFrom-Json
 
