@@ -9,6 +9,12 @@
         "description": "Location to for the resources."
       }
     },
+    "vmName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of TeamCity virtual machine"
+      }
+    },
     "teamcityVersion": {
       "type": "string",
       "metadata": {
@@ -27,9 +33,14 @@
         "description": "TeamCity installation size: typical usage for Small - 3 users, 100 builds/day; Medium - 5 users, 300 builds/day; Large - 20 users, 1000 builds/day"
       }
     },
+    "vmSize": {
+      "type": "string",
+      "metadata": {
+        "description": "Size for the Virtual Machine."
+      }
+    },
     "VMAdminUsername": {
       "type": "string",
-      "defaultValue": "core",
       "metadata": {
         "description": "Username to login to the VMs"
       }
@@ -155,13 +166,10 @@
     "publicIpAddressId": {
       "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
     },
-    "networkName": "teamcity-net",
-    "networkSubnet": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/default')]",
-    "networkSecurityGroupName": "teamcity-nsg",
-    "vmName": "teamcity",
-    "vmSize": "[if(equals(parameters('installationSize'), 'Small'), 'Standard_A2_v2', if(equals(parameters('installationSize'), 'Medium'), 'Standard_F2s', 'Standard_F4s'))]",
+    "networkName": "[concat(parameters('vmName'), '-net')]",
+    "networkSecurityGroupName": "[concat(parameters('vmName'), '-nsg')]",
     "vmDataDisk": "[if(equals(parameters('installationSize'), 'Small'), 32, if(equals(parameters('installationSize'), 'Medium'), 64, 128))]",
-    "storageType": "[if(contains(toLower(substring(variables('VMSize'), 9)), 's'), 'Premium_LRS', 'Standard_LRS')]",
+    "storageType": "[if(contains(toLower(substring(parameters('vmSize'), 9)), 's'), 'Premium_LRS', 'Standard_LRS')]",
     "linuxConfiguration": {
       "disablePasswordAuthentication": true,
       "ssh": {
@@ -173,13 +181,11 @@
         ]
       }
     },
-    "dbServerName": "[concat('teamcity-', uniqueString(resourceGroup().id))]",
-    "dbName": "teamcitydb",
+    "dbServerName": "[concat(replace(parameters('vmName'), '-', ''), 'db')]",
     "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'Standard'))]",
     "databaseDTU": "[if(equals(parameters('installationSize'), 'Small'), 50, if(equals(parameters('installationSize'), 'Medium'), 100, 100))]",
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
-    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')))]",
-    "storageContributorRoleId": "[guid(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'storage'))]",
+    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', parameters('vmName')))]",
     "customData": "[base64...]"
   },
   "resources": [
@@ -264,7 +270,7 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "[concat(variables('vmName'), '-config')]",
+            "name": "[concat(parameters('vmName'), '-config')]",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": "[if(not(equals(parameters('publicIpNewOrExisting'), 'none')), variables('publicIpAddressId') , json('null'))]",
@@ -283,7 +289,7 @@
       "type": "Microsoft.DBforMySQL/servers",
       "name": "[variables('dbServerName')]",
       "location": "[parameters('location')]",
-      "apiVersion": "2017-04-30-preview",
+      "apiVersion": "2017-12-01",
       "properties": {
         "version": "5.7",
         "administratorLogin": "teamcity",
@@ -301,7 +307,7 @@
       "resources": [
         {
           "type": "firewallrules",
-          "apiVersion": "2017-04-30-preview",
+          "apiVersion": "2017-12-01",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
           ],
@@ -315,7 +321,7 @@
         {
           "type": "databases",
           "name": "[variables('dbName')]",
-          "apiVersion": "2017-04-30-preview",
+          "apiVersion": "2017-12-01",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
           ],
@@ -327,7 +333,7 @@
         {
           "type": "configurations",
           "name": "long_query_time",
-          "apiVersion": "2017-04-30-preview",
+          "apiVersion": "2017-12-01",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
           ],
@@ -339,7 +345,7 @@
         {
           "type": "configurations",
           "name": "slow_query_log",
-          "apiVersion": "2017-04-30-preview",
+          "apiVersion": "2017-12-01",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
           ],
@@ -351,7 +357,7 @@
         {
           "type": "configurations",
           "name": "max_allowed_packet",
-          "apiVersion": "2017-04-30-preview",
+          "apiVersion": "2017-12-01",
           "dependsOn": [
             "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]"
           ],
@@ -366,7 +372,7 @@
       "condition": "[equals(parameters('storageNewOrExisting'), 'new')]",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('storageAccountName')]",
-      "apiVersion": "2016-01-01",
+      "apiVersion": "2017-10-01",
       "location": "[parameters('location')]",
       "sku": {
         "name": "[parameters('storageAccountType')]"
@@ -375,20 +381,20 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
+      "name": "[parameters('vmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('networkName'))]",
         "[concat('Microsoft.DBforMySQL/servers/', variables('dbServerName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]"
       ],
-      "apiVersion": "2016-04-30-preview",
+      "apiVersion": "2017-12-01",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('vmSize')]"
+          "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[variables('vmName')]",
+          "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('VMAdminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
           "customData": "[variables('customData')]",
@@ -402,7 +408,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[concat(variables('vmName'), '-os')]",
+            "name": "[concat(parameters('vmName'), '-os')]",
             "caching": "ReadWrite",
             "createOption": "FromImage",
             "managedDisk": {
@@ -411,7 +417,7 @@
           },
           "dataDisks": [
             {
-              "name": "[concat(variables('vmName'), '-data')]",
+              "name": "[concat(parameters('vmName'), '-data')]",
               "caching": "ReadWrite",
               "createOption": "Empty",
               "diskSizeGB": "[variables('vmDataDisk')]",
@@ -442,21 +448,21 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "name": "[variables('contributorRoleId')]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties": {
         "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(concat('Microsoft.Compute/virtualMachines/', variables('vmName')), '2017-03-30', 'Full').identity.principalId]",
+        "principalId": "[reference(concat('Microsoft.Compute/virtualMachines/', parameters('vmName')), '2017-03-30', 'Full').identity.principalId]",
         "scope": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name)]"
       }
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/ManagedIdentityExtensionForLinux')]",
-      "apiVersion": "2016-03-30",
+      "name": "[concat(parameters('vmName'),'/ManagedIdentityExtensionForLinux')]",
+      "apiVersion": "2017-12-01",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
         "[concat('Microsoft.Authorization/roleAssignments/', variables('contributorRoleId'))]"
       ],
       "properties": {
