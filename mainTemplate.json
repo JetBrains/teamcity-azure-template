@@ -181,7 +181,8 @@
         ]
       }
     },
-    "dbServerName": "[concat(replace(parameters('vmName'), '-', ''), 'db')]",
+    "dbServerName": "[concat(parameters('vmName'), '-', uniqueString(resourceGroup().id))]",
+    "dbName": "teamcitydb",
     "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'Standard'))]",
     "databaseDTU": "[if(equals(parameters('installationSize'), 'Small'), 50, if(equals(parameters('installationSize'), 'Medium'), 100, 100))]",
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
