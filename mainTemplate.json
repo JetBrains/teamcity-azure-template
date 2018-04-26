@@ -107,7 +107,9 @@
     },
     "addressPrefixes": {
       "type": "array",
-      "defaultValue": [ "10.0.0.0/16" ],
+      "defaultValue": [
+        "10.0.0.0/16"
+      ],
       "metadata": {
         "description": "Address prefix of the virtual network"
       }
@@ -183,8 +185,9 @@
     },
     "dbServerName": "[concat(parameters('vmName'), '-', uniqueString(resourceGroup().id))]",
     "dbName": "teamcitydb",
-    "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'Standard'))]",
-    "databaseDTU": "[if(equals(parameters('installationSize'), 'Small'), 50, if(equals(parameters('installationSize'), 'Medium'), 100, 100))]",
+    "databaseSku": "[if(equals(parameters('installationSize'), 'Small'), 'B_Gen5_1', if(equals(parameters('installationSize'), 'Medium'), 'B_Gen5_2', 'GP_Gen5_2'))]",
+    "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'GeneralPurpose'))]",
+    "databaseCapacity": "[if(equals(parameters('installationSize'), 'Small'), 1, if(equals(parameters('installationSize'), 'Medium'), 2, 2))]",
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
     "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', parameters('vmName')))]",
     "customData": "[base64...]"
@@ -295,15 +298,18 @@
         "version": "5.7",
         "administratorLogin": "teamcity",
         "administratorLoginPassword": "[parameters('databasePassword')]",
-        "storageMB": "[variables('databaseSizeMB')]",
+        "storageProfile": {
+          "storageMB": "[variables('databaseSizeMB')]",
+          "geoRedundantBackup": "Disabled"
+        },
         "sslEnforcement": "Disabled"
       },
       "sku": {
-        "name": "[concat('MYSQL', substring(variables('databaseTier'), 0, 1), variables('databaseDTU'))]",
+        "name": "[variables('databaseSku')]",
         "tier": "[variables('databaseTier')]",
-        "capacity": "[variables('databaseDTU')]",
+        "capacity": "[variables('databaseCapacity')]",
         "size": "[variables('databaseSizeMB')]",
-        "family": "SkuFamily"
+        "family": "Gen5"
       },
       "resources": [
         {
