@@ -78,18 +78,11 @@
             "type": "Microsoft.Compute.SizeSelector",
             "label": "Virtual machine size",
             "toolTip": "The size of virtual machine to provision.",
-            "recommendedSizes": [
-              "Standard_A2_v2",
-              "Standard_F2s",
-              "Standard_F4s"
-            ],
             "constraints": {
-              "excludedSizes": [
-                "Basic_A0",
-                "Basic_A1",
-                "Basic_A2",
-                "Basic_A3",
-                "Basic_A4"
+              "allowedSizes": [
+                "Standard_A2_v2",
+                "Standard_F2s",
+                "Standard_F4s"
               ]
             },
             "osPlatform": "Linux",
@@ -201,8 +194,8 @@
             },
             "constraints": {
               "required": true,
-              "regex": "^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])|(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])|(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])).{8,128}$",
-              "validationMessage": "Password must be at least 8 characters long and have 3 out of the following: one number, one lower case, one upper case, or one special character"
+              "regex": "^((?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])|(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[A-Z])(?=.*[!@#$%^&*])|(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])).{12,128}$",
+              "validationMessage": "Password must be at least 12 characters long and have 3 out of the following: one number, one lower case, one upper case, or one special character"
             },
             "options": {
               "hideConfirmation": false
