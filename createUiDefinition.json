@@ -79,9 +79,9 @@
             "label": "Virtual machine size",
             "toolTip": "The size of virtual machine to provision.",
             "recommendedSizes": [
-              "Standard_A2_v2",
               "Standard_F2s",
-              "Standard_F4s"
+              "Standard_F4s",
+              "Standard_A2_v2"
             ],
             "constraints": {
               "allowedSizes": [
@@ -97,9 +97,6 @@
                 "Standard_F2s",
                 "Standard_F4s",
                 "Standard_F8s",
-                "Standard_DS11_v2",
-                "Standard_DS12_v2",
-                "Standard_DS13_v2"
               ]
             },
             "osPlatform": "Linux",
