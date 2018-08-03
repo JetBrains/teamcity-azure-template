@@ -54,7 +54,7 @@ The template installs the following Azure integrations in TeamCity:
 * [Azure Artifacts Storage](https://plugins.jetbrains.com/plugin/9617-azure-artifact-storage) - allows to store build artifacts in Azure Cloud Storage Blobs.
 * [Azure Active Directory](https://plugins.jetbrains.com/plugin/9083-azure-active-directory) - allows to use Azure AD authentication in TeamCity.
 
-### Futher Steps
+### Further Steps
 
 **Note**: TeamCity server exposes HTTP endpoint, so please make sure to enable HTTPS endpoint for virtual machine for production usage.
 
