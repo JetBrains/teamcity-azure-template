@@ -462,25 +462,6 @@
         "principalId": "[reference(concat('Microsoft.Compute/virtualMachines/', parameters('vmName')), '2017-03-30', 'Full').identity.principalId]",
         "scope": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name)]"
       }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/ManagedIdentityExtensionForLinux')]",
-      "apiVersion": "2017-12-01",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
-        "[concat('Microsoft.Authorization/roleAssignments/', variables('contributorRoleId'))]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.ManagedIdentity",
-        "type": "ManagedIdentityExtensionForLinux",
-        "typeHandlerVersion": "1.0",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "port": 50342
-        }
-      }
     }
   ],
   "outputs": {
