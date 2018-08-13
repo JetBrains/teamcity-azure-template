@@ -13,7 +13,7 @@
         "constraints": {
           "required": true,
           "regex": "^[a-z0-9A-Z-]{3,79}$",
-          "validationMessage": "The name must be between 3 and 79 characters long and contain letters, numbers and hyphens only."
+          "validationMessage": "The name must be between 3 and 79 characters long and contain letters, numbers, and hyphens only."
         }
       },
       {
@@ -77,7 +77,7 @@
             "name": "vmSize",
             "type": "Microsoft.Compute.SizeSelector",
             "label": "Virtual machine size",
-            "toolTip": "The size of virtual machine to provision.",
+            "toolTip": "The size of the virtual machine to provision.",
             "recommendedSizes": [
               "Standard_F2s",
               "Standard_F4s",
@@ -115,8 +115,8 @@
               "domainNameLabel": "Domain name label"
             },
             "toolTip": {
-              "publicIpAddress": "Public IP for the TeamCity, name must be unique across a resource group",
-              "domainNameLabel": "DNS Prefix for the TeamCity, must be globally unique"
+              "publicIpAddress": "Public IP for TeamCity, the name must be unique across the resource group",
+              "domainNameLabel": "DNS Prefix for TeamCity, must be globally unique"
             },
             "defaultValue": {
               "publicIpAddressName": "[concat(basics('vmName'), '-ip')]",
