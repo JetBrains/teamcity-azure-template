@@ -4,8 +4,9 @@
   "parameters": {
     "teamcityVersion": {
       "type": "string",
-      "defaultValue": "2018.1.1",
+      "defaultValue": "2018.1.2",
       "allowedValues": [
+        "2018.1.2",
         "2018.1.1",
         "2018.1",
         "2017.2.4",
