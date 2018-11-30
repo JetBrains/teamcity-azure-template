@@ -194,6 +194,19 @@
   },
   "resources": [
     {
+      "apiVersion": "2018-02-01",
+      "name": "pid-72b12eed-d5f1-45ab-b4d4-e7036f99ed87",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
       "condition": "[equals(parameters('publicIpNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[parameters('publicIpName')]",
