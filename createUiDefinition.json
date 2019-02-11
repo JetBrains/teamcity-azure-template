@@ -96,7 +96,7 @@
                 "Standard_DS4_v2",
                 "Standard_F2s",
                 "Standard_F4s",
-                "Standard_F8s",
+                "Standard_F8s"
               ]
             },
             "osPlatform": "Linux",
@@ -130,6 +130,16 @@
               "required": {
                 "domainNameLabel": true
               }
+            }
+          },
+          {
+            "name": "domainOwnerEmail",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Domain owner e-mail",
+            "toolTip": "E-mail address to report problems regarding SSL certificate issuing for domain.",
+            "defaultValue": "",
+            "constraints": {
+              "regex": "^.+@.+$"
             }
           },
           {
@@ -252,6 +262,7 @@
       "publicIpDns": "[steps('vmSettings').publicIpAddress.domainNameLabel]",
       "publicIpName": "[steps('vmSettings').publicIpAddress.name]",
       "publicIpResourceGroupName": "[steps('vmSettings').publicIpAddress.resourceGroup]",
+      "domainOwnerEmail": "[steps('vmSettings').domainOwnerEmail]",
       "installationSize": "[steps('additionalSettings').installationSize]",
       "databasePassword": "[steps('additionalSettings').databasePassword]",
       "storageNewOrExisting": "[steps('additionalSettings').storageAccount.newOrExisting]",

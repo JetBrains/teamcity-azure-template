@@ -162,12 +162,20 @@
       "metadata": {
         "description": "Name of the resource group for the public ip address"
       }
+    },
+    "domainOwnerEmail": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "E-mail address to report problems regarding SSL certificate issuing for domain."
+      }
     }
   },
   "variables": {
     "publicIpAddressId": {
       "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
     },
+    "domainName": "[concat(variables('publicIpDns'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
     "networkName": "[concat(parameters('vmName'), '-net')]",
     "networkSecurityGroupName": "[concat(parameters('vmName'), '-nsg')]",
     "vmDataDisk": "[if(equals(parameters('installationSize'), 'Small'), 32, if(equals(parameters('installationSize'), 'Medium'), 64, 128))]",
@@ -249,7 +257,7 @@
           {
             "name": "default-allow-ssh",
             "properties": {
-              "priority": 1000,
+              "priority": 1020,
               "protocol": "TCP",
               "access": "Allow",
               "direction": "Inbound",
@@ -270,6 +278,19 @@
               "sourcePortRange": "*",
               "destinationAddressPrefix": "*",
               "destinationPortRange": "80"
+            }
+          },
+          {
+            "name": "default-allow-https",
+            "properties": {
+              "priority": 1000,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
             }
           }
         ]
@@ -480,7 +501,7 @@
   "outputs": {
     "teamcityURL": {
       "type": "string",
-      "value": "[concat('http://', reference(parameters('publicIpName')).dnsSettings.fqdn)]"
+      "value": "[concat('https://', variables('domainName')]"
     },
     "SSH": {
       "type": "string",

@@ -32,6 +32,8 @@ $replacementTokens = @{
     "%RDSHost%" = "',variables('dbServerName'),'";
     "%RDSPassword%" = "',replace(parameters('databasePassword'), '\\', '\\\\'),'";
     "%RDSDataBase%" = "',variables('dbName'),'";
+    "%DomainName%" = "',variables('domainName'),'";
+    "%DomainOwnerEmailEnv%" = "',if(empty(parameters('domainOwnerEmail')),'',concat('-e LETSENCRYPT_EMAIL=',parameters('domainOwnerEmail'))),'";
 }
 
 $json = (Get-Content -Path $cloudConfigFile -Raw).replace("'", "''")
