@@ -2,9 +2,9 @@
 
 [![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
+The template allows deploying a TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
 
-During deployment will be created TeamCity server deployment with [auto-retrieval of SSL certificates](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) from the [Let's Encrypt](https://letsencrypt.org/) and [nginx reverse proxy](https://github.com/jwilder/nginx-proxy).
+During deployment will be created TeamCity server deployment with [auto-retrieval of SSL certificate](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) for domain name from the [Let's Encrypt](https://letsencrypt.org/) and [nginx reverse proxy](https://github.com/jwilder/nginx-proxy).
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://goo.gl/nXap7u)
 
@@ -67,6 +67,8 @@ The template installs the following Azure integrations in TeamCity:
 ## TeamCity Update
 
 During deployment, a `teamcity` virtual machine will be tagged with the `teamcity-version` tag. To change the TeamCity version, you need to update the tag value and restart the `teamcity-server.service` and `teamcity-agent.service` systemd services or the virtual machine.
+
+**Note:** in case of TeamCity data upgrade to access server log connect to the vm and execute the following command to view required authentication token: `sudo journalctl -f -u teamcity-server`
 
 ## Feedback
 
