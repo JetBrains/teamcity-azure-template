@@ -501,7 +501,7 @@
   "outputs": {
     "teamcityURL": {
       "type": "string",
-      "value": "[concat('https://', variables('domainName')]"
+      "value": "[concat('https://', variables('domainName'))]"
     },
     "SSH": {
       "type": "string",
