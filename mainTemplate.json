@@ -175,7 +175,7 @@
     "publicIpAddressId": {
       "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
     },
-    "domainName": "[concat(variables('publicIpDns'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
+    "domainName": "[concat(parameters('publicIpDns'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
     "networkName": "[concat(parameters('vmName'), '-net')]",
     "networkSecurityGroupName": "[concat(parameters('vmName'), '-nsg')]",
     "vmDataDisk": "[if(equals(parameters('installationSize'), 'Small'), 32, if(equals(parameters('installationSize'), 'Medium'), 64, 128))]",
