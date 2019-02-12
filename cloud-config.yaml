@@ -234,7 +234,6 @@ coreos:
         ExecStartPre=/bin/mkdir -p /opt/domains/certs
         ExecStartPre=/bin/mkdir -p /opt/domains/vhost.d
         ExecStartPre=/bin/mkdir -p /opt/domains/nginx/html
-        ExecStartPre=/usr/bin/docker pull jwilder/nginx-proxy
         ExecStart=/usr/bin/docker run \
           -p 80:80 \
           -p 443:443 \
@@ -244,7 +243,8 @@ coreos:
           -v /var/run/docker.sock:/tmp/docker.sock:ro \
           --name nginx \
           jwilder/nginx-proxy
-        ExecStop=-/usr/bin/docker rm -f nginx
+        ExecStop=-/usr/bin/docker stop nginx
+        ExecStopPost=-/usr/bin/docker rm nginx
         Restart=always
 
         [Install]
@@ -259,14 +259,14 @@ coreos:
 
         [Service]
         TimeoutStartSec=1200s
-        ExecStartPre=/usr/bin/docker pull jrcs/letsencrypt-nginx-proxy-companion
         ExecStart=/usr/bin/docker run \
           -v /opt/domains/certs:/etc/nginx/certs:rw \
           --volumes-from nginx \
           -v /var/run/docker.sock:/var/run/docker.sock:ro \
           --name letsencrypt \
           jrcs/letsencrypt-nginx-proxy-companion
-        ExecStop=-/usr/bin/docker rm -f letsencrypt
+        ExecStop=-/usr/bin/docker stop letsencrypt
+        ExecStopPost=-/usr/bin/docker rm letsencrypt
         Restart=always
 
         [Install]
@@ -277,7 +277,6 @@ coreos:
       content: |
         [Unit]
         Requires=docker.service teamcity-server.service nginx.service letsencrypt.service
-        Before=teamcity-agent.service
         ConditionPathExists=!/etc/teamcity/waiter
 
         [Service]
