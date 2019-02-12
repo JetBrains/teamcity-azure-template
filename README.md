@@ -4,9 +4,11 @@
 
 The template allows deploying aTeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
 
-**Note**: You need to deploy it into a dedicated resource group.
+During deployment will be created TeamCity server deployment with [auto-retrieval of SSL certificates](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) from the [Let's Encrypt](https://letsencrypt.org/) and [nginx reverse proxy](https://github.com/jwilder/nginx-proxy).
 
 [![Deploy to Azure](https://azuredeploy.net/deploybutton.svg)](https://goo.gl/nXap7u)
+
+**Note**: You need to deploy it into a dedicated resource group. Deployment will take around 10 minutes, use `teamcityUrl` template output value to access the TeamCity web UI.
 
 ## Parameters
 
@@ -45,6 +47,14 @@ After deployment you will be able to connect to the `teamcity` virtual machine v
 * `teamcity-server.service` - launches TeamCity server.
 * `teamcity-agent.service` - launches TeamCity agent. 
 * `teamcity-update.service` - check for TeamCity version updates.
+* `nginx.service` - provides reverse proxy for TeamCity server.
+* `letsencrypt.service` - executes auto SSL certificate retrieval for domain name.
+
+To diagnose problems you could use the following commands:
+
+* `sudo systemctl (start|stop|status|restart) <serviceName>` - to manage service operation state.
+* `sudo journalctl -u <serviceName>` - to view history of service log.
+* `sudo journalctl -f -u <serviceName>` - to execute tail view of service log.
 
 ### Installed Plugins
 
@@ -53,10 +63,6 @@ The template installs the following Azure integrations in TeamCity:
 * [Azure Cloud Agents](https://plugins.jetbrains.com/plugin/9260-azure-resource-manager-cloud-support) - allows to scale the pool of TeamCity build agents by leveraging Azure virtual machines.
 * [Azure Artifacts Storage](https://plugins.jetbrains.com/plugin/9617-azure-artifact-storage) - allows to store build artifacts in Azure Cloud Storage Blobs.
 * [Azure Active Directory](https://plugins.jetbrains.com/plugin/9083-azure-active-directory) - allows to use Azure AD authentication in TeamCity.
-
-### Further Steps
-
-**Note**: TeamCity server exposes HTTP endpoint, so please make sure to enable HTTPS endpoint for virtual machine for production usage.
 
 ## TeamCity Update
 
