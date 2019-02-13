@@ -24,9 +24,14 @@ write_files:
       done
   - path: "/etc/teamcity/database.properties"
     content: |
+      # Database: MySQL
+
+      connectionUrl=jdbc:mysql://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?useSSL=true&requireSSL=false
       connectionProperties.user=teamcity@%RDSHost%
       connectionProperties.password=%RDSPassword%
-      connectionUrl=jdbc:mysql://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?useSSL=true&requireSSL=false&testOnBorrow=true
+
+      maxConnections=50
+      testOnBorrow=true
   - path: "/etc/teamcity/disabled-plugins.xml"
     content: |
       <?xml version="1.0" encoding="UTF-8"?>
