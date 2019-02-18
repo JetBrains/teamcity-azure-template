@@ -43,7 +43,7 @@ write_files:
   - path: "/etc/teamcity/hostname"
     content: |
       DOMAIN_NAME=%DomainName%
-  - path: "/etc/teamcity/checkCertificate.sh"
+  - path: "/etc/teamcity/check-certificate.sh"
     permissions: 0755
     content: |
       #!/bin/bash
@@ -55,6 +55,18 @@ write_files:
         echo "Trying to renew certificate for ${DOMAIN_NAME}..."
         docker exec letsencrypt /app/signal_le_service
         sleep 30
+        attempt=$(($attempt + 1))
+      done
+  - path: "/etc/teamcity/download-file.sh"
+    permissions: 0755
+    content: |
+      #!/bin/bash
+      attempt=0
+      until $(curl --output $2 --silent --fail $1); do
+        retry_in_secs=$((3**$attempt))
+        echo "Will try to download file $1 in $retry_in_secs minutes"
+        sleep $retry_in_secs
+        echo "Trying to download file $1..."
         attempt=$(($attempt + 1))
       done
   - path: "/etc/coreos/update.conf"
@@ -109,8 +121,9 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/lib/jdbc
-        ExecStart=/bin/curl http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar \
-          -o /mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar
+        ExecStart=/bin/bash /etc/teamcity/download-file.sh \
+          http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar \
+          /mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar
 
         [Install]
         WantedBy=multi-user.target
@@ -126,8 +139,9 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/plugins
-        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt \
-          -o /mnt/data/teamcity-server/data/plugins/azure-plugins.txt
+        ExecStart=/bin/bash /etc/teamcity/download-file.sh \
+          https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt \
+          /mnt/data/teamcity-server/data/plugins/azure-plugins.txt
         ExecStart=/bin/bash -c 'cd /mnt/data/teamcity-server/data/plugins && curl -K azure-plugins.txt'
 
         [Install]
@@ -289,7 +303,7 @@ coreos:
         [Service]
         Type=oneshot
         EnvironmentFile=/etc/teamcity/hostname
-        ExecStartPre=/bin/bash /etc/teamcity/checkCertificate.sh
+        ExecStartPre=/bin/bash /etc/teamcity/check-certificate.sh
         ExecStart=/bin/bash -c "until $(curl --output /dev/null --silent --fail https://${DOMAIN_NAME}); do echo 'Waiting for success response from ${DOMAIN_NAME}'; sleep 10; done;"
         ExecStartPost=/bin/touch /etc/teamcity/waiter
 
