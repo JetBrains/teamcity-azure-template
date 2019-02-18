@@ -139,7 +139,8 @@
             "toolTip": "E-mail address to report problems regarding SSL certificate issuing for domain.",
             "defaultValue": "",
             "constraints": {
-              "regex": "^.+@.+$"
+              "regex": "^.+@.+$",
+              "validationMessage": "The e-mail address must contain @ symbol."
             }
           },
           {
