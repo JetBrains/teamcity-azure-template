@@ -26,7 +26,7 @@ write_files:
     content: |
       # Database: MySQL
 
-      connectionUrl=jdbc:mysql://%RDSHost%.mysql.database.azure.com/%RDSDataBase%?useSSL=true&requireSSL=false
+      connectionUrl=jdbc:mysql://%RDSHost%/%RDSDataBase%?useSSL=true&requireSSL=false
       connectionProperties.user=teamcity@%RDSHost%
       connectionProperties.password=%RDSPassword%
 
@@ -109,8 +109,8 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/lib/jdbc
-        ExecStart=/bin/wget -O /mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar \
-          http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar
+        ExecStart=/bin/curl http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar \
+          -o /mnt/data/teamcity-server/data/lib/jdbc/mysql-connector-java-bin.jar
 
         [Install]
         WantedBy=multi-user.target
@@ -126,7 +126,8 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/bin/mkdir -p /mnt/data/teamcity-server/data/plugins
-        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt -o /mnt/data/teamcity-server/data/plugins/azure-plugins.txt
+        ExecStart=/bin/curl https://raw.githubusercontent.com/JetBrains/teamcity-azure-template/master/azure-plugins.txt \
+          -o /mnt/data/teamcity-server/data/plugins/azure-plugins.txt
         ExecStart=/bin/bash -c 'cd /mnt/data/teamcity-server/data/plugins && curl -K azure-plugins.txt'
 
         [Install]

@@ -29,10 +29,10 @@ Write-Host "Will set the following versions: $versions"
 Write-Host "Updating $templateFile file"
 
 $replacementTokens = @{
-    "%RDSHost%" = "',variables('dbServerName'),'";
+    "%RDSHost%" = "',reference(resourceId('Microsoft.DBforMySQL/servers',variables('dbServerName'))).fullyQualifiedDomainName,'";
     "%RDSPassword%" = "',replace(parameters('databasePassword'), '\\', '\\\\'),'";
     "%RDSDataBase%" = "',variables('dbName'),'";
-    "%DomainName%" = "',variables('domainName'),'";
+    "%DomainName%" = "',reference(variables('publicIpName')).dnsSettings.fqdn,'";
     "%DomainOwnerEmailEnv%" = "',if(empty(parameters('domainOwnerEmail')),'',concat('-e LETSENCRYPT_EMAIL=',parameters('domainOwnerEmail'))),'";
 }
 
@@ -52,7 +52,8 @@ foreach($version in $versions) {
     $template.parameters.teamcityVersion.allowedValues.add($version)
 }
 
-$template.variables.customData = $customData
+$vmResource = $template.resources | Where-Object { $_.name -eq "[variables('vmName')]" }
+$vmResource.properties.osProfile.customData = $customData
 
 [Newtonsoft.Json.JsonConvert]::SerializeObject($template, [Newtonsoft.Json.Formatting]::Indented) | Set-Content $templateFile
 

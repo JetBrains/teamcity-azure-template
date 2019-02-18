@@ -172,8 +172,9 @@
     }
   },
   "variables": {
+    "publicIpName": "[parameters('publicIpName')]",
     "publicIpAddressId": {
-      "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', parameters('publicIpName'))]"
+      "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
     },
     "domainName": "[concat(parameters('publicIpDns'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
     "networkName": "[concat(parameters('vmName'), '-net')]",
@@ -197,8 +198,7 @@
     "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'GeneralPurpose'))]",
     "databaseCapacity": "[if(equals(parameters('installationSize'), 'Small'), 1, if(equals(parameters('installationSize'), 'Medium'), 2, 2))]",
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
-    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', parameters('vmName')))]",
-    "customData": "[base64...]"
+    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', parameters('vmName')))]"
   },
   "resources": [
     {
@@ -217,7 +217,7 @@
     {
       "condition": "[equals(parameters('publicIpNewOrExisting'), 'new')]",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[parameters('publicIpName')]",
+      "name": "[variables('publicIpName')]",
       "location": "[parameters('location')]",
       "apiVersion": "2017-08-01",
       "properties": {
@@ -301,7 +301,7 @@
       "name": "[variables('networkName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[parameters('publicIpName')]",
+        "[variables('publicIpName')]",
         "[parameters('virtualNetworkName')]"
       ],
       "apiVersion": "2016-09-01",
@@ -438,7 +438,7 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('VMAdminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "customData": "[variables('customData')]",
+          "customData": "[base64...]",
           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
@@ -501,11 +501,11 @@
   "outputs": {
     "teamcityURL": {
       "type": "string",
-      "value": "[concat('https://', variables('domainName'))]"
+      "value": "[concat('https://', reference(variables('publicIpName')).dnsSettings.fqdn)]"
     },
     "SSH": {
       "type": "string",
-      "value": "[concat('ssh ', parameters('VMAdminUsername'), '@', reference(parameters('publicIpName')).dnsSettings.fqdn)]"
+      "value": "[concat('ssh ', parameters('VMAdminUsername'), '@', reference(variables('publicIpName')).dnsSettings.fqdn)]"
     }
   }
 }
