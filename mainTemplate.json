@@ -177,8 +177,9 @@
       "id": "[resourceId(parameters('publicIpResourceGroupName'), 'Microsoft.Network/publicIPAddresses', variables('publicIpName'))]"
     },
     "domainName": "[concat(parameters('publicIpDns'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
-    "networkName": "[concat(parameters('vmName'), '-net')]",
-    "networkSecurityGroupName": "[concat(parameters('vmName'), '-nsg')]",
+    "vmName": "[parameters('vmName')]",
+    "networkName": "[concat(variables('vmName'), '-net')]",
+    "networkSecurityGroupName": "[concat(variables('vmName'), '-nsg')]",
     "vmDataDisk": "[if(equals(parameters('installationSize'), 'Small'), 32, if(equals(parameters('installationSize'), 'Medium'), 64, 128))]",
     "storageType": "[if(contains(toLower(substring(parameters('vmSize'), 9)), 's'), 'Premium_LRS', 'Standard_LRS')]",
     "linuxConfiguration": {
@@ -192,13 +193,13 @@
         ]
       }
     },
-    "dbServerName": "[concat(parameters('vmName'), '-', uniqueString(resourceGroup().id))]",
+    "dbServerName": "[concat(variables('vmName'), '-', uniqueString(resourceGroup().id))]",
     "dbName": "teamcitydb",
     "databaseSku": "[if(equals(parameters('installationSize'), 'Small'), 'B_Gen5_1', if(equals(parameters('installationSize'), 'Medium'), 'B_Gen5_2', 'GP_Gen5_2'))]",
     "databaseTier": "[if(equals(parameters('installationSize'), 'Small'), 'Basic', if(equals(parameters('installationSize'), 'Medium'), 'Basic', 'GeneralPurpose'))]",
     "databaseCapacity": "[if(equals(parameters('installationSize'), 'Small'), 1, if(equals(parameters('installationSize'), 'Medium'), 2, 2))]",
     "databaseSizeMB": "[if(equals(parameters('installationSize'), 'Small'), 51200, if(equals(parameters('installationSize'), 'Medium'), 51200, 128000))]",
-    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', parameters('vmName')))]"
+    "contributorRoleId": "[guid(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')))]"
   },
   "resources": [
     {
@@ -308,7 +309,7 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "[concat(parameters('vmName'), '-config')]",
+            "name": "[concat(variables('vmName'), '-config')]",
             "properties": {
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": "[if(not(equals(parameters('publicIpNewOrExisting'), 'none')), variables('publicIpAddressId') , json('null'))]",
@@ -422,7 +423,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('vmName')]",
+      "name": "[variables('vmName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('networkName'))]",
@@ -435,7 +436,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('vmName')]",
+          "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('VMAdminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
           "customData": "[base64...]",
@@ -449,7 +450,7 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "[concat(parameters('vmName'), '-os')]",
+            "name": "[concat(variables('vmName'), '-os')]",
             "caching": "ReadWrite",
             "createOption": "FromImage",
             "managedDisk": {
@@ -458,7 +459,7 @@
           },
           "dataDisks": [
             {
-              "name": "[concat(parameters('vmName'), '-data')]",
+              "name": "[concat(variables('vmName'), '-data')]",
               "caching": "ReadWrite",
               "createOption": "Empty",
               "diskSizeGB": "[variables('vmDataDisk')]",
@@ -489,11 +490,11 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "name": "[variables('contributorRoleId')]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
       ],
       "properties": {
         "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
-        "principalId": "[reference(concat('Microsoft.Compute/virtualMachines/', parameters('vmName')), '2017-03-30', 'Full').identity.principalId]",
+        "principalId": "[reference(concat('Microsoft.Compute/virtualMachines/', variables('vmName')), '2017-03-30', 'Full').identity.principalId]",
         "scope": "[concat(subscription().id, '/resourceGroups/', resourceGroup().name)]"
       }
     }
