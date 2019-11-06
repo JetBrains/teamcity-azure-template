@@ -18,16 +18,11 @@
       },
       {
         "name": "teamcityVersion",
-        "type": "Microsoft.Common.DropDown",
+        "type": "Microsoft.Common.TextBox",
         "label": "TeamCity version",
-        "defaultValue": "2017.2.3",
+        "defaultValue": "latest",
         "constraints": {
-          "allowedValues": [
-            {
-              "label": "2017.2.3",
-              "value": "2017.2.3"
-            }
-          ]
+          "required": true,
         }
       }
     ],
