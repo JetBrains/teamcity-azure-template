@@ -17,13 +17,49 @@
         }
       },
       {
+        "name": "teamcityVersionType",
+        "type": "Microsoft.Common.OptionsGroup",
+        "label": "TeamCity version selection type",
+        "defaultValue": "Pre-defined",
+        "constraints": {
+    		"allowedValues": [
+      			{
+					"label": "Pre-defined",
+        			"value": "teamcityVersion"
+      			},
+      			{
+        			"label": "Custom",
+        			"value": "teamcityCustomVersion"
+      			}
+    		],
+    		"required": true
+  		}
+      },
+      {
         "name": "teamcityVersion",
+        "type": "Microsoft.Common.DropDown",
+        "label": "TeamCity version",
+        "defaultValue": "2017.2.3",
+        "constraints": {
+          "allowedValues": [
+            {
+              "label": "2017.2.3",
+              "value": "2017.2.3"
+            }
+          ],
+          "required": true
+        },
+        "visible": "[equals(basics('teamcityVersionType'), 'teamcityVersion')]"
+      },
+      {
+        "name": "teamcityCustomVersion",
         "type": "Microsoft.Common.TextBox",
         "label": "TeamCity version",
-        "defaultValue": "latest",
+        "defaultValue": "",
         "constraints": {
-          "required": true,
-        }
+          "required": true
+        },
+        "visible": "[equals(basics('teamcityVersionType'), 'teamcityCustomVersion')]"
       }
     ],
     "steps": [
@@ -243,7 +279,7 @@
     "outputs": {
       "location": "[location()]",
       "vmName": "[basics('vmName')]",
-      "teamcityVersion": "[basics('teamcityVersion')]",
+      "teamcityVersion": "[basics(basics('teamcityVersionType'))]",
       "VMAdminUsername": "[steps('vmSettings').adminUsername]",
       "authenticationType": "[steps('vmSettings').SSHCredentials.authenticationType]",
       "adminPasswordOrKey": "[coalesce(steps('vmSettings').SSHCredentials.password, steps('vmSettings').SSHCredentials.sshPublicKey)]",

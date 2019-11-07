@@ -46,6 +46,15 @@ $customData = "[base64(concat('$json'))]"
 
 $template = [Newtonsoft.Json.JsonConvert]::DeserializeObject((Get-Content $templateFile -Raw), [Newtonsoft.Json.Linq.JObject])
 
+$template.parameters.teamcityVersion.defaultValue = $versions[0]
+$allowedValues = $template.parameters.teamcityVersion.allowedValues
+if ($allowedValues) {
+    $allowedValues.clear()
+    foreach($version in $versions) {
+        $allowedValues.add($version)
+    }
+}
+
 $vmResource = $template.resources | Where-Object { $_.name -eq "[variables('vmName')]" }
 $vmResource.properties.osProfile.customData = $customData
 

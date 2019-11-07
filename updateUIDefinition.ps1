@@ -23,13 +23,13 @@ foreach($group in $groups) {
 Write-Host "Will set the following versions: $versions"
 
 $template = [Newtonsoft.Json.JsonConvert]::DeserializeObject((Get-Content $templateFile -Raw), [Newtonsoft.Json.Linq.JObject])
-$template.parameters.basics[1].defaultValue = $versions[0]
-$template.parameters.basics[1].constraints.allowedValues.clear()
+$template.parameters.basics[2].defaultValue = $versions[0]
+$template.parameters.basics[2].constraints.allowedValues.clear()
 foreach($version in $versions) {
     $jo = New-Object -TypeName Newtonsoft.Json.Linq.JObject
     $jo.label = $version
     $jo.value = $version
-    $template.parameters.basics[1].constraints.allowedValues.add($jo)
+    $template.parameters.basics[2].constraints.allowedValues.add($jo)
 }
 
 [Newtonsoft.Json.JsonConvert]::SerializeObject($template, [Newtonsoft.Json.Formatting]::Indented) | Set-Content $templateFile
