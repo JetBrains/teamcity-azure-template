@@ -439,7 +439,7 @@
           "computerName": "[variables('vmName')]",
           "adminUsername": "[parameters('VMAdminUsername')]",
           "adminPassword": "[parameters('adminPasswordOrKey')]",
-          "customData": "[base64...]",
+          "customData": "[base64('')]",
           "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
