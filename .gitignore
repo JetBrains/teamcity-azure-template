@@ -47,3 +47,6 @@ build
 # gradle-teamcity-plugin
 data/
 servers/
+
+# bash.txt
+bash.txt

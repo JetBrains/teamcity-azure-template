@@ -1,8 +1,8 @@
 az group create \
   --name teamCity_Dev \
   --location "West Europe"
-az group deployment create \
+az deployment group create \
   --name devenvironment \
-  --resource-group AppGateway_Dev \
-  --template-uri https://raw.githubusercontent.com/oYPIo/teamcity-azure-template/deployment/azuredeploy.json \
+  --resource-group teamCity_Dev \
+  --template-uri https://raw.githubusercontent.com/oYPIo/teamcity-azure-template/development/azuredeploy.json \
   --parameters azuredeploy.parameters.dev.json

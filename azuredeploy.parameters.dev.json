@@ -12,10 +12,10 @@
         "value": "core"
       },
       "SSHKeyData": {
-        "value": null
+        "value": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqWYhtH+stIV2skaQtl2uDBXHuceUGsopz1C8+jDy9LEFujlVswizXb3F4NZmr74mEqT4vgUzxMxSHK/gGG50sXZwoLLBGaluZQkF0/P9zmlMZs6c3akK0zpaFKUgWh2vCGO+h21aGJT9KPxShy3wgOp8wUES3yZIfLe8bHC/q4WLhh35W0BM7efQ6KTHzWW1MWMduBJ21lYwQ3f/QozCHWtR1mPkCDzYEpm0rY6A/M6OBqgaGuNytM7Y5mem/MX0bSN49wwZQPW/UjHUjaamqWFieNDWPdWWzDZQiIBwPJi7Gxt3/chdFfHHW5sR9WWDS8c2hBJP4R/ZTnHCuOdSZ yaroslav@cc-650fd85f-76ff75db5d-gv8bd"
       },
       "databasePassword": {
-        "value": null
+        "value": "dogdogdogdogD0g"
       },
       "domainOwnerEmail": {
         "value": null
