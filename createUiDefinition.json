@@ -139,7 +139,7 @@
               "publisher": "kinvolk",
               "offer": "flatcar-container-linux",
               "sku": "stable",
-              "version": "latest"
+              "version": "2345.3.1"
             },
             "count": "1"
           },

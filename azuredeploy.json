@@ -324,9 +324,9 @@
       "name": "[variables('vmName')]",
       "location": "[resourceGroup().location]",
       "plan": {
-        "name": "[variables('vmName')]",
-        "publisher": "JetBrains",
-        "product": "TeamCity-flatcar-container-linux"
+        "name": "stable",
+        "product": "flatcar-container-linux",
+        "publisher": "kinvolk"
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('networkName'))]",
@@ -359,7 +359,7 @@
             "publisher": "kinvolk",
             "offer": "flatcar-container-linux",
             "sku": "stable",
-            "version": "latest"
+            "version": "2345.3.1"
           },
           "osDisk": {
             "name": "[concat(variables('vmName'), '-os')]",
