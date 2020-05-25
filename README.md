@@ -1,8 +1,11 @@
 # TeamCity Azure Resource Manager Template
 
+
+**Note**: This deployment template is made for illustrative purposes and is not a production-ready TeamCity installation.
+
 [![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
-The template allows deploying a TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with CoreOS and starts TeamCity in a docker container.
+The template allows deploying a TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with Flatcar Container Linux and starts TeamCity in a docker container.
 
 During deployment will be created TeamCity server deployment with [auto-retrieval of SSL certificate](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion) for domain name from the [Let's Encrypt](https://letsencrypt.org/) and [nginx reverse proxy](https://github.com/jwilder/nginx-proxy).
 
@@ -42,7 +45,7 @@ Allows specifying password for the MySQL database.
 
 ## Configuration
 
-After deployment you will be able to connect to the `teamcity` virtual machine via SSH. In CoreOS TeamCity works as the following systemd service:
+After deployment you will be able to connect to the `teamcity` virtual machine via SSH. In Flatcar Container Linux TeamCity works as the following systemd service:
 
 * `teamcity-server.service` - launches TeamCity server.
 * `teamcity-agent.service` - launches TeamCity agent. 

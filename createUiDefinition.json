@@ -39,12 +39,16 @@
         "name": "teamcityVersion",
         "type": "Microsoft.Common.DropDown",
         "label": "TeamCity version",
-        "defaultValue": "2017.2.3",
+        "defaultValue": "2019.2.4",
         "constraints": {
           "allowedValues": [
             {
               "label": "2017.2.3",
               "value": "2017.2.3"
+            },
+            {
+              "label": "2019.2.4",
+              "value": "2019.2.4"
             }
           ],
           "required": true
@@ -132,9 +136,10 @@
             },
             "osPlatform": "Linux",
             "imageReference": {
-              "publisher": "CoreOS",
-              "offer": "CoreOS",
-              "sku": "Stable"
+              "publisher": "kinvolk",
+              "offer": "flatcar-container-linux",
+              "sku": "stable",
+              "version": "latest"
             },
             "count": "1"
           },

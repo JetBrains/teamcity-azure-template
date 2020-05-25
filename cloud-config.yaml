@@ -69,10 +69,10 @@ write_files:
         echo "Trying to download file $1..."
         attempt=$(($attempt + 1))
       done
-  - path: "/etc/coreos/update.conf"
+  - path: "/etc/flatcar/update.conf"
     content: |
       REBOOT_STRATEGY="off"
-coreos:
+flatcar:
   units:
     - name: "format-mnt-data.service"
       enable: true
