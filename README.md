@@ -1,7 +1,7 @@
 # TeamCity Azure Resource Manager Template
 
 
-**Note**: This deployment template is made for illustrative purposes and is not a production-ready TeamCity installation.
+**Note**: This deployment template is deprecated and will no longer receive active support. It serves for illustrative purposes and is not a production-ready TeamCity installation.
 
 [![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
