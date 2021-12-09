@@ -1,9 +1,9 @@
 # TeamCity Azure Resource Manager Template
 
 
-**Note**: This deployment template is deprecated and will no longer receive active support. It serves for illustrative purposes and is not a production-ready TeamCity installation.
+## This deployment template is deprecated and will no longer receive active support. It serves for illustrative purposes and is not a production-ready TeamCity installation
 
-[![official project](http://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+[![obsolete project](http://jb.gg/badges/obsolete.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
 
 The template allows deploying a TeamCity [server](https://hub.docker.com/r/jetbrains/teamcity-server/) and [agent](https://hub.docker.com/r/jetbrains/teamcity-agent/) in Azure cloud. It creates a MySQL database, a virtual machine with Flatcar Container Linux and starts TeamCity in a docker container.
 
